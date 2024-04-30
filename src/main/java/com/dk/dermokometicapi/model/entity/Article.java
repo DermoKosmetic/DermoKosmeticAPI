@@ -3,10 +3,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -27,8 +27,7 @@ public class Article {
     @Column(nullable = false, length = 20)
     private String type;
 
-    @Column(nullable = true)
-    @Lob
+    @Column(nullable = true, length = 1000)
     private String mainImg;
 
     @Column(nullable = false)
@@ -52,20 +51,4 @@ public class Article {
             inverseJoinColumns = @JoinColumn(name = "writer_id")
     )
     private List<Writer> writers;
-
-    @OneToMany
-    @JoinColumn(
-            name = "like_id",
-            referencedColumnName = "id",
-            nullable = true
-    )
-    private List<ArticleLike> likes;
-
-    @OneToMany
-    @JoinColumn(
-            name = "comment_id",
-            referencedColumnName = "id",
-            nullable = true
-    )
-    private List<Comment> comments;
 }
