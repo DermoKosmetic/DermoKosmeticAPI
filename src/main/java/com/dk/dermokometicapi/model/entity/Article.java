@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -50,5 +51,21 @@ public class Article {
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "writer_id")
     )
-    private Set<Writer> writers;
+    private List<Writer> writers;
+
+    @OneToMany
+    @JoinColumn(
+            name = "like_id",
+            referencedColumnName = "id",
+            nullable = true
+    )
+    private List<ArticleLike> likes;
+
+    @OneToMany
+    @JoinColumn(
+            name = "comment_id",
+            referencedColumnName = "id",
+            nullable = true
+    )
+    private List<Comment> comments;
 }

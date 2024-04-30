@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,6 +32,6 @@ public class ArticleRequestDTO {
     private String content;
 
     @NotEmpty(message = "Writer Ids are mandatory")
-    private Long[] writerIds;
+    private List<Long> writerIds;
 
 }
