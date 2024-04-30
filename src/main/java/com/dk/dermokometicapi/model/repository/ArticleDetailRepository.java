@@ -1,4 +1,12 @@
 package com.dk.dermokometicapi.model.repository;
 
-public interface ArticleDetailRepository {
+import com.dk.dermokometicapi.model.entity.ArticleDetail;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface ArticleDetailRepository extends JpaRepository<ArticleDetail, Long>{
+
+    // Regular CRUD operations
+    Optional<ArticleDetail> findByArticleId(Long articleId);
 }
