@@ -23,7 +23,7 @@ public class User {
     @Column(nullable = false, length = 50)
     private String email;
 
-    @Column(nullable = true)
+    @Column(nullable = true, columnDefinition = "TEXT")
     @Lob
     private String profilePic;
 

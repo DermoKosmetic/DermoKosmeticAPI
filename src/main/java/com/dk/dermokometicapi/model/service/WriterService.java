@@ -16,6 +16,6 @@ public class WriterService {
 
     // Regular CRUD operations
     public List<Writer> getEntities(List<Long> ids) {
-        return writerRepository.FindByIdIn(ids);
+        return writerRepository.FindByIdList(ids);
     }
 }

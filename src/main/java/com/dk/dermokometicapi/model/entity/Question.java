@@ -20,7 +20,8 @@ public class Question {
     @Column(nullable = false, length = 50)
     private String title;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 200, columnDefinition = "TEXT")
+    @Lob
     private String content;
 
     @Column(nullable = false)

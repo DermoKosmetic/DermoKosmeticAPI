@@ -1,7 +1,9 @@
 package com.dk.dermokometicapi.model.service;
 
+import com.dk.dermokometicapi.model.dto.UserRequestDTO;
 import com.dk.dermokometicapi.model.dto.UserResponseDTO;
 import com.dk.dermokometicapi.model.dto.UserUpdateDTO;
+import com.dk.dermokometicapi.model.dto.UserValidationDTO;
 import com.dk.dermokometicapi.model.entity.User;
 import com.dk.dermokometicapi.model.exception.BadRequestException;
 import com.dk.dermokometicapi.model.exception.ResourceNotFoundException;
@@ -11,7 +13,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -23,6 +24,20 @@ public class UserService {
     public List<UserResponseDTO> getAllUser () {
         List<User> users = userRepository.findAll();
         return userMapper.convertToDTO(users);
+    }
+
+    public UserResponseDTO createUser(UserRequestDTO user) {
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new BadRequestException("Username is already taken!");
+        }
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new BadRequestException("Email is already taken!");
+        }
+
+        User newUser = userMapper.convertToEntity(user);
+
+        userRepository.save(newUser);
+        return userMapper.convertToDTO(newUser);
     }
 
     public User getEntityByUsername(String username) {
@@ -42,40 +57,46 @@ public class UserService {
         return userMapper.convertToDTO(user);
     }
 
-    public UserResponseDTO getUserByEmailAndPassword(String email, String password) {
-        User user = userRepository.findByEmailAndPassword(email, password)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with this credentials"));
-        return userMapper.convertToDTO(user);
+    public boolean validateUserByUsername(String username, String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+
+        return user.getPassword().equals(password);
     }
 
-    public UserResponseDTO getUserByUsernameAndPassword(String username, String password) {
-        User user = userRepository.findByUsernameAndPassword(username, password)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with this credentials"));
-        return userMapper.convertToDTO(user);
+    public boolean validateUserByEmail(String email, String password) {
+        User user = userRepository.findByemail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        return user.getPassword().equals(password);
     }
 
     public Boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
 
-    public void deleteByUsername(String username) {
-        userRepository.deleteByUsername(username);
+    public void deleteUser(UserValidationDTO userValidationDTO) {
+        if(!validateUser(userValidationDTO)) {
+            throw new BadRequestException("Invalid user credentials");
+        }
+        if(userValidationDTO.getUsername() != null) {
+            userRepository.deleteByUsername(userValidationDTO.getUsername());
+        }
+        else{
+            userRepository.deleteByEmail(userValidationDTO.getEmail());
+        }
     }
 
-    public void deleteById(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    public UserResponseDTO updateByUsername(String username, User updatedUser) {
+    public UserResponseDTO updateUser(String username, UserRequestDTO userRequestDTO) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
-
+        User updatedUser = userMapper.convertToEntity(userRequestDTO);
         updatedUser.setId(user.getId());
         userRepository.save(updatedUser);
         return userMapper.convertToDTO(updatedUser);
     }
 
-    public UserResponseDTO patchByUsername(String username, UserUpdateDTO updatedUser) {
+    public UserResponseDTO patchUser(String username, UserUpdateDTO updatedUser) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
         if (updatedUser.getUsername() != null) {
@@ -87,7 +108,29 @@ public class UserService {
         if (updatedUser.getPassword() != null) {
             user.setPassword(updatedUser.getPassword());
         }
+        if (updatedUser.getProfilePic() != null) {
+            user.setProfilePic(updatedUser.getProfilePic());
+        }
         userRepository.save(user);
         return userMapper.convertToDTO(user);
+    }
+
+    public boolean validateUser(UserValidationDTO userValidationDTO) {
+        boolean isValid;
+        if(userValidationDTO.getUsername() != null) {
+            isValid = validateUserByUsername(userValidationDTO.getUsername(), userValidationDTO.getPassword());
+        }
+        else if(userValidationDTO.getEmail() != null) {
+            isValid = validateUserByEmail(userValidationDTO.getEmail(), userValidationDTO.getPassword());
+        }
+        else {
+            throw new BadRequestException("Username or Email must be provided");
+        }
+        return isValid;
+    }
+
+    public User getEntityById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
     }
 }
