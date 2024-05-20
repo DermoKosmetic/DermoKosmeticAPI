@@ -37,7 +37,7 @@ public class Comment {
             referencedColumnName = "id",
             nullable = false
     )
-    private Article article;
+    private Article article;//ojo
 
     @ManyToOne
     @JoinColumn(

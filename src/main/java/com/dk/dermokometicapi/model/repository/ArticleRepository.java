@@ -1,6 +1,8 @@
 package com.dk.dermokometicapi.model.repository;
 
 import com.dk.dermokometicapi.model.entity.Article;
+import com.dk.dermokometicapi.model.entity.Comment;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +17,9 @@ public interface ArticleRepository extends JpaRepository<Article, Long>{
     // Regular CRUD operations
 
     Optional<Article> findByTitle(String title);
+
+    @Query("SELECT a.id FROM Article a")
+    Optional<Article> findById(Long id);
 
     void deleteByTitle(String title);
 
