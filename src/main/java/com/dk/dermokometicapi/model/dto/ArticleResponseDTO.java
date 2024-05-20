@@ -19,6 +19,6 @@ public class ArticleResponseDTO {
     private String lastUpdateDate;
     private Long likes;
     private Long comments;
-    private List<Long> writers;
+    private List<Long> writerIds;
     private String content;
 }

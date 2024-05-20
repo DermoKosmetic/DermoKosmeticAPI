@@ -20,11 +20,10 @@ public class Writer {
     @Column(nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = true)
-    @Lob
+    @Column(nullable = true, length = 500)
     private String description;
 
-    @Column(nullable = true)
+    @Column(nullable = true, columnDefinition = "TEXT")
     @Lob
     private String profilePic;
 }

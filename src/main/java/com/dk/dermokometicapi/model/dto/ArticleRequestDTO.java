@@ -1,6 +1,8 @@
 package com.dk.dermokometicapi.model.dto;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,12 +28,14 @@ public class ArticleRequestDTO {
     private String type;
 
     @URL(message = "Main Image must be a valid URL")
+    @Nullable
     private String mainImg;
 
     @NotBlank(message = "Content is mandatory")
     private String content;
 
     @NotEmpty(message = "Writer Ids are mandatory")
+    @NotNull(message = "Writer Ids are mandatory")
     private List<Long> writerIds;
 
 }

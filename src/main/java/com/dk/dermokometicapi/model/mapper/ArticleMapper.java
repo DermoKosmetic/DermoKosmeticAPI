@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -36,12 +37,12 @@ public class ArticleMapper {
         return articleSummaryResponseDTO;
     }
 
-    public ArticleResponseDTO convertToDTO(Article article, ArticleDetail articleDetail, Long likes, Long comments, List<Long> writers) {
+    public ArticleResponseDTO convertToDTO(Article article, ArticleDetail articleDetail, Long likes, Long comments, List<Long> writerIds) {
         ArticleResponseDTO articleResponseDTO = modelMapper.map(article, ArticleResponseDTO.class);
         modelMapper.map(articleDetail, articleResponseDTO);
         articleResponseDTO.setLikes(likes);
         articleResponseDTO.setComments(comments);
-        articleResponseDTO.setWriters(writers);
+        articleResponseDTO.setWriterIds(writerIds);
         return articleResponseDTO;
     }
 }
