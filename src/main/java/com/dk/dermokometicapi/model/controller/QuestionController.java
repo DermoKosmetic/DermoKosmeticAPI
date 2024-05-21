@@ -7,10 +7,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,6 +17,12 @@ import java.util.List;
 public class QuestionController {
 
     private final QuestionService questionService;
+
+    @GetMapping
+    public ResponseEntity<List<QuestionResponseDTO>> getAllQuestions() {
+        return ResponseEntity.ok(questionService.getAllQuestions());
+    }
+
 
     @Transactional
     @PostMapping
