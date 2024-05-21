@@ -23,7 +23,6 @@ public class Writer {
     @Column(nullable = true, length = 500)
     private String description;
 
-    @Column(nullable = true, columnDefinition = "TEXT")
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String profilePic;
 }

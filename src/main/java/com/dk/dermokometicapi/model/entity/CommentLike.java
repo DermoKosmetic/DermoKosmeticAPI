@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "comment_like")
+@Table(name = "comment_likes")
 public class CommentLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,4 +31,7 @@ public class CommentLike {
             nullable = false
     )
     private User user;
+
+    @Column(name = "publication_date")
+    private LocalDate publicationDate;
 }
