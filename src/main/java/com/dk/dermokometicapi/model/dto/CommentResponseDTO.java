@@ -16,6 +16,6 @@ public class CommentResponseDTO {
     private Long parentCommentId;
     private Long articleId;
     private Long userId;
-    private Long likes;
-    private Long responses;
+    private Long likeNumber;
+    private Long responseNumber;
 }
