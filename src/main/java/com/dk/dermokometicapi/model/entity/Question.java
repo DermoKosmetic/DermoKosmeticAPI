@@ -24,6 +24,9 @@ public class Question {
     @Lob
     private String content;
 
+    @Column(nullable = false, length = 20)
+    private String type;
+
     @Column(nullable = false)
     private LocalDate publicationDate;
 
