@@ -7,6 +7,7 @@ import com.dk.dermokometicapi.model.dto.UserResponseDTO;
 import com.dk.dermokometicapi.model.entity.Question;
 import com.dk.dermokometicapi.model.entity.User;
 import com.dk.dermokometicapi.model.exception.BadRequestException;
+import com.dk.dermokometicapi.model.exception.ResourceNotFoundException;
 import com.dk.dermokometicapi.model.mapper.ArticleMapper;
 import com.dk.dermokometicapi.model.mapper.QuestionLikeMapper;
 import com.dk.dermokometicapi.model.mapper.QuestionMapper;
@@ -63,4 +64,29 @@ public class QuestionService {
         List<Question> questions = questionRepository.findAll();
         return getQuestionListDTO(questions);
     }
+
+    public QuestionResponseDTO getQuestionById(Long id) {
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Question with id: " + id + " not found"));
+        Long likes = questionRepository.findQuestionLikesById(id);
+        Long answers = questionRepository.findQuestionAnswersById(id);
+        return questionMapper.convertToDTO(question, likes, answers);
+    }
+
+    public QuestionResponseDTO getQuestionByTitle(String title) {
+        Question question = questionRepository.findByTitle(title)
+                .orElseThrow(() -> new ResourceNotFoundException("Question with title: " + title + " not found"));
+        Long likes = questionRepository.findQuestionLikesById(question.getId());
+        Long answers = questionRepository.findQuestionAnswersById(question.getId());
+        return questionMapper.convertToDTO(question, likes, answers);
+    }
+
+    // delete by id
+    public void deleteQuestionById(Long id) {
+        if (!questionRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Question with id: " + id + " not found");
+        }
+        questionRepository.deleteById(id);
+    }
+
 }

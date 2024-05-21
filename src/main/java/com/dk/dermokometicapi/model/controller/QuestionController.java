@@ -29,4 +29,23 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.createQuestion(questionRequestDTO));
     }
 
+    @Transactional
+    @GetMapping("/id/{id}")
+    public ResponseEntity<QuestionResponseDTO> getQuestionById(@PathVariable Long id) {
+        return ResponseEntity.ok(questionService.getQuestionById(id));
+    }
+
+    @Transactional
+    @GetMapping("/title/{title}")
+    public ResponseEntity<QuestionResponseDTO> getQuestionByTitle(@PathVariable String title) {
+        return ResponseEntity.ok(questionService.getQuestionByTitle(title));
+    }
+
+    @Transactional
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deleteQuestionById(@PathVariable Long id) {
+        questionService.deleteQuestionById(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
