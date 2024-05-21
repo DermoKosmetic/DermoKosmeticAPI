@@ -1,10 +1,8 @@
 package com.dk.dermokometicapi.model.service;
 
-import com.dk.dermokometicapi.model.dto.QuestionRequestDTO;
-import com.dk.dermokometicapi.model.dto.QuestionResponseDTO;
-import com.dk.dermokometicapi.model.dto.UserRequestDTO;
-import com.dk.dermokometicapi.model.dto.UserResponseDTO;
+import com.dk.dermokometicapi.model.dto.*;
 import com.dk.dermokometicapi.model.entity.Question;
+import com.dk.dermokometicapi.model.entity.QuestionLike;
 import com.dk.dermokometicapi.model.entity.User;
 import com.dk.dermokometicapi.model.exception.BadRequestException;
 import com.dk.dermokometicapi.model.exception.ResourceNotFoundException;
@@ -87,6 +85,41 @@ public class QuestionService {
             throw new ResourceNotFoundException("Question with id: " + id + " not found");
         }
         questionRepository.deleteById(id);
+    }
+
+    // like
+    public QuestionLikeResponseDTO createLike(QuestionLikeRequestDTO questionLikeRequestDTO) {
+        Long questionId = questionLikeRequestDTO.getQuestionId();
+        Long userId = questionLikeRequestDTO.getUserId();
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found with id: " + questionId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        if (questionLikeRepository.existsByQuestionAndUser(question, user)) {
+            throw new BadRequestException("User already liked this question");
+        }
+
+        QuestionLike newLike = new QuestionLike();
+        newLike.setQuestion(question);
+        newLike.setUser(user);
+        newLike.setLikeDate(LocalDate.now());
+        questionLikeRepository.save(newLike);
+
+        return questionLikeMapper.convertToResponseDTO(newLike);
+    }
+
+    //dislike
+    public void deleteLike(QuestionLikeRequestDTO questionLikeRequestDTO) {
+        Long questionId = questionLikeRequestDTO.getQuestionId();
+        Long userId = questionLikeRequestDTO.getUserId();
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + questionId));
+        User user = userService.getEntityById(userId);
+        if (!questionLikeRepository.existsByQuestionAndUser(question, user)) {
+            throw new BadRequestException("User did not like this article");
+        }
+        questionLikeRepository.deleteByQuestionAndUser(question, user);
     }
 
 }

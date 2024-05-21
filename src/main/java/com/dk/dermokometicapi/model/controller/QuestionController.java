@@ -1,5 +1,7 @@
 package com.dk.dermokometicapi.model.controller;
 
+import com.dk.dermokometicapi.model.dto.QuestionLikeRequestDTO;
+import com.dk.dermokometicapi.model.dto.QuestionLikeResponseDTO;
 import com.dk.dermokometicapi.model.dto.QuestionRequestDTO;
 import com.dk.dermokometicapi.model.dto.QuestionResponseDTO;
 import com.dk.dermokometicapi.model.service.QuestionService;
@@ -46,6 +48,19 @@ public class QuestionController {
     public ResponseEntity<Void> deleteQuestionById(@PathVariable Long id) {
         questionService.deleteQuestionById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Transactional
+    @PostMapping("/like")
+    public ResponseEntity<QuestionLikeResponseDTO> likeQuestion(@RequestBody QuestionLikeRequestDTO questionLikeRequestDTO) {
+        return ResponseEntity.ok(questionService.createLike(questionLikeRequestDTO));
+    }
+
+    @Transactional
+    @DeleteMapping("/like")
+    public ResponseEntity<Void> deleteLikeQuestion(@RequestBody QuestionLikeRequestDTO questionLikeRequestDTO) {
+        questionService.deleteLike(questionLikeRequestDTO);
+        return ResponseEntity.ok().build();
     }
 
 }
