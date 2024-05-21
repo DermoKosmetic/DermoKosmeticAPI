@@ -4,18 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionResponseDTO {
+public class QuestionLikeResponseDTO {
     private Long id;
-    private String title;
-    private String content;
-    private String publicationDate;
-    private String type;
+    private Long questionId;
     private Long userId;
-    private Long likes;
-    private Long answers;
+    private String likeDate;
 }
