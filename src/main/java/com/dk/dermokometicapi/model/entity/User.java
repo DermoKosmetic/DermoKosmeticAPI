@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 @Data
 @NoArgsConstructor
@@ -23,8 +24,7 @@ public class User {
     @Column(nullable = false, length = 50)
     private String email;
 
-    @Column(nullable = true, columnDefinition = "TEXT")
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String profilePic;
 
 }
