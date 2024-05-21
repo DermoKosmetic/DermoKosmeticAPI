@@ -22,4 +22,15 @@ public class CommentMapper {
         commentResponseDTO.setResponses(responses);
         return commentResponseDTO;
     }
+
+    //likes y ++
+/*
+    public List<CommentResponseDTO> convertToListDTO (List<Comment> comments){
+        return comments.stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+* */
+
+
 }
