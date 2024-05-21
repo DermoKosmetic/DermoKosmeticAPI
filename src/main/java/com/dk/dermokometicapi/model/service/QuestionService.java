@@ -19,6 +19,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -45,4 +47,20 @@ public class QuestionService {
         return questionMapper.convertToDTO(newQuestion, 0L, 0L);
     }
 
+    private List<QuestionResponseDTO> getQuestionListDTO(List<Question> questions) {
+        return questions.stream()
+                .map(question -> {
+                    Long likes = questionRepository.findQuestionLikesById(question.getId());
+                    Long answers = questionRepository.findQuestionAnswersById(question.getId());
+                    System.out.println(likes +  answers);
+                    return questionMapper.convertToDTO(question, likes, answers);
+                })
+                .collect(Collectors.toList());
+    }
+
+    //get all articles
+    public List<QuestionResponseDTO> getAllQuestions() {
+        List<Question> questions = questionRepository.findAll();
+        return getQuestionListDTO(questions);
+    }
 }
