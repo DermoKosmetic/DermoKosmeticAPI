@@ -1,12 +1,10 @@
 package com.dk.dermokometicapi.model.controller;
 
-import com.dk.dermokometicapi.model.dto.QuestionLikeRequestDTO;
-import com.dk.dermokometicapi.model.dto.QuestionLikeResponseDTO;
-import com.dk.dermokometicapi.model.dto.QuestionRequestDTO;
-import com.dk.dermokometicapi.model.dto.QuestionResponseDTO;
+import com.dk.dermokometicapi.model.dto.*;
 import com.dk.dermokometicapi.model.service.QuestionService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +59,12 @@ public class QuestionController {
     public ResponseEntity<Void> deleteLikeQuestion(@RequestBody QuestionLikeRequestDTO questionLikeRequestDTO) {
         questionService.deleteLike(questionLikeRequestDTO);
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    @GetMapping("/filter")
+    public ResponseEntity<Page<QuestionResponseDTO>> searchQuestions(@RequestBody FilterRequestDTO filterRequestDTO) {
+        return ResponseEntity.ok(questionService.getFilteredList(filterRequestDTO));
     }
 
 }
