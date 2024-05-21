@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "question_like")
+@Table(name = "question_likes")
 public class QuestionLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
