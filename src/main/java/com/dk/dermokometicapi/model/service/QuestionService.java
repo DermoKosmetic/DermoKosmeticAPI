@@ -16,6 +16,8 @@ import com.dk.dermokometicapi.model.repository.QuestionLikeRepository;
 import com.dk.dermokometicapi.model.repository.QuestionRepository;
 import com.dk.dermokometicapi.model.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -124,6 +126,78 @@ public class QuestionService {
             throw new BadRequestException("User did not like this article");
         }
         questionLikeRepository.deleteByQuestionAndUser(question, user);
+    }
+
+    //filters
+
+
+    private Page<QuestionResponseDTO> getQuestionListDTO(Page<Question> questions){
+        return questions.map(question -> {
+            Long likes = questionRepository.findQuestionLikesById(question.getId());
+            Long answers = questionRepository.findQuestionAnswersById(question.getId());
+            return questionMapper.convertToDTO(question, likes, answers);
+        });
+    }
+
+    public List<QuestionResponseDTO> getAllQuestionsSummary() {
+        List<Question> questions = questionRepository.findAll();
+        return getQuestionListDTO(questions);
+    }
+
+    public Page<QuestionResponseDTO> getRecentQuestions(int pageNum, int pageSize) {
+        Page<Question> questions = questionRepository.findRecentQuestions(PageRequest.of(pageNum, pageSize));
+        return getQuestionListDTO(questions);
+    }
+
+    public Page<QuestionResponseDTO> getQuestionsOrderedByLikes(int pageNum, int pageSize) {
+        Page<Question> questions = questionRepository.findLikedQuestions(PageRequest.of(pageNum, pageSize));
+        return getQuestionListDTO(questions);
+    }
+
+    public Page<QuestionResponseDTO> getQuestionsOrderedByAnswers(int pageNum, int pageSize) {
+        Page<Question> questions = questionRepository.findAnsweredQuestions(PageRequest.of(pageNum, pageSize));
+        return getQuestionListDTO(questions);
+    }
+
+    public Page<QuestionResponseDTO> getQuestionsByType(List<String> types, int pageNum, int pageSize) {
+        Page<Question> questions = questionRepository.findByType(types, PageRequest.of(pageNum, pageSize));
+        return getQuestionListDTO(questions);
+    }
+
+    public Page<QuestionResponseDTO> getRecentQuestionsByType(List<String> types, int pageNum, int pageSize) {
+        Page<Question> questions = questionRepository.findRecentQuestionByType(types, PageRequest.of(pageNum, pageSize));
+        return getQuestionListDTO(questions);
+    }
+
+    public Page<QuestionResponseDTO> getLikedQuestionsByType(List<String> types, int pageNum, int pageSize) {
+        Page<Question> questions = questionRepository.findLikedQuestionByType(types, PageRequest.of(pageNum, pageSize));
+        return getQuestionListDTO(questions);
+    }
+
+    public Page<QuestionResponseDTO> getAnsweredQuestionsByType(List<String> types, int pageNum, int pageSize) {
+        Page<Question> questions = questionRepository.findAnsweredQuestionByType(types, PageRequest.of(pageNum, pageSize));
+        return getQuestionListDTO(questions);
+    }
+
+    public Page<QuestionResponseDTO> getFilteredList(FilterRequestDTO filterRequestDTO){
+        if(filterRequestDTO.getOrderBy() == null) filterRequestDTO.setOrderBy("recent");
+        if(filterRequestDTO.getCategories().isEmpty()){
+            return switch (filterRequestDTO.getOrderBy()) {
+                case "likes" ->
+                        getQuestionsOrderedByLikes(filterRequestDTO.getPageNum(), filterRequestDTO.getPageSize());
+                case "answers" ->
+                        getQuestionsOrderedByAnswers(filterRequestDTO.getPageNum(), filterRequestDTO.getPageSize());
+                default -> getRecentQuestions(filterRequestDTO.getPageNum(), filterRequestDTO.getPageSize());
+            };
+        }else{
+            return switch (filterRequestDTO.getOrderBy()) {
+                case "likes" ->
+                        getLikedQuestionsByType(filterRequestDTO.getCategories(), filterRequestDTO.getPageNum(), filterRequestDTO.getPageSize());
+                case "answers" ->
+                        getAnsweredQuestionsByType(filterRequestDTO.getCategories(), filterRequestDTO.getPageNum(), filterRequestDTO.getPageSize());
+                default -> getRecentQuestionsByType(filterRequestDTO.getCategories(), filterRequestDTO.getPageNum(), filterRequestDTO.getPageSize());
+            };
+        }
     }
 
 
