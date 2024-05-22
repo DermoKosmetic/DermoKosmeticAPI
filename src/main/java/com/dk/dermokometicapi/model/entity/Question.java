@@ -23,6 +23,9 @@ public class Question {
     @Column(nullable = false, length = 200)
     private String content;
 
+    @Column(nullable = false, length = 20)
+    private String type;
+
     @Column(nullable = false)
     private LocalDate publicationDate;
 
