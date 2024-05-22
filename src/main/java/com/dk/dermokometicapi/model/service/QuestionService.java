@@ -6,6 +6,7 @@ import com.dk.dermokometicapi.model.entity.QuestionLike;
 import com.dk.dermokometicapi.model.entity.User;
 import com.dk.dermokometicapi.model.exception.BadRequestException;
 import com.dk.dermokometicapi.model.exception.ResourceNotFoundException;
+
 import com.dk.dermokometicapi.model.mapper.ArticleMapper;
 import com.dk.dermokometicapi.model.mapper.QuestionLikeMapper;
 import com.dk.dermokometicapi.model.mapper.QuestionMapper;
@@ -20,8 +21,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 @AllArgsConstructor
@@ -47,6 +50,7 @@ public class QuestionService {
         questionRepository.save(newQuestion);
         return questionMapper.convertToDTO(newQuestion, 0L, 0L);
     }
+
 
     private List<QuestionResponseDTO> getQuestionListDTO(List<Question> questions) {
         return questions.stream()
@@ -195,5 +199,6 @@ public class QuestionService {
             };
         }
     }
+
 
 }
