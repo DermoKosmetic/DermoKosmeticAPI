@@ -25,7 +25,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     List<Question> findByPublicationDate(LocalDate publicationDate);
 
-    @Query(value = "SELECT COUNT(*) FROM questions q LEFT JOIN question_like ql ON q.id = ql.question_id WHERE ql.question_id = :questionId", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM questions q LEFT JOIN question_likes ql ON q.id = ql.question_id WHERE ql.question_id = :questionId", nativeQuery = true)
     Long findQuestionLikesById(@Param("questionId") Long id);
 
     @Query(value = "SELECT COUNT(*) FROM questions q LEFT JOIN answers a ON q.id = a.question_id WHERE a.question_id = :questionId", nativeQuery = true)
@@ -38,7 +38,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query("SELECT q FROM Question q ORDER BY q.publicationDate DESC")
     Page<Question> findRecentQuestions(Pageable pageable);
 
-    @Query(value = "SELECT q.* FROM questions q LEFT JOIN question_like ql ON q.id = ql.question_id GROUP BY q.id ORDER BY COUNT(ql.id) DESC", nativeQuery = true)
+    @Query(value = "SELECT q.* FROM questions q LEFT JOIN question_likes ql ON q.id = ql.question_id GROUP BY q.id ORDER BY COUNT(ql.id) DESC", nativeQuery = true)
     Page<Question> findLikedQuestions(Pageable pageable);
 
     @Query(value = "SELECT q.* FROM questions q LEFT JOIN answers a ON q.id = a.question_id GROUP BY q.id ORDER BY COUNT(a.id) DESC", nativeQuery = true)
@@ -50,7 +50,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query("SELECT q FROM Question q WHERE q.type IN :types ORDER BY q.publicationDate DESC")
     Page<Question> findRecentQuestionByType(@Param("types") List<String> types, Pageable pageable);
 
-    @Query(value = "SELECT q.* FROM questions q LEFT JOIN question_like ql ON q.id = ql.question_id WHERE q.type IN :types GROUP BY q.id ORDER BY COUNT(ql.id) DESC", nativeQuery = true)
+    @Query(value = "SELECT q.* FROM questions q LEFT JOIN question_likes ql ON q.id = ql.question_id WHERE q.type IN :types GROUP BY q.id ORDER BY COUNT(ql.id) DESC", nativeQuery = true)
     Page<Question> findLikedQuestionByType(@Param("types") List<String> types, Pageable pageable);
 
     @Query(value = "SELECT q.* FROM questions q LEFT JOIN answers a ON q.id = a.question_id WHERE q.type IN :types GROUP BY q.id ORDER BY COUNT(a.id) DESC", nativeQuery = true)
