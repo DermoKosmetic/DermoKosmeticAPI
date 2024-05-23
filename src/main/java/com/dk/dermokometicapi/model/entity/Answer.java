@@ -46,12 +46,4 @@ public class Answer {
             nullable = false
     )
     private User user;
-
-    @OneToMany
-    @JoinColumn(
-            name = "like_id",
-            referencedColumnName = "id",
-            nullable = true
-    )
-    private List<AnswerLike> likes;
 }
