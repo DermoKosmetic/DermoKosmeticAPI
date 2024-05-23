@@ -156,7 +156,7 @@ public class ArticleService {
 
     public ArticleResponseDTO getFullArticleById(Long id) {
         Article article = articleRepository.findById(id)
-                .orElseThrow(() -> new ResolutionException("Article not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
         Long likes = articleRepository.findArticleLikesById(id);
         Long comments = articleRepository.findArticleCommentsById(id);
         List<Long> writers = articleRepository.findWritersByArticleId(id);
