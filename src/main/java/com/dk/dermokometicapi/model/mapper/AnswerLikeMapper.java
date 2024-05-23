@@ -1,6 +1,7 @@
 package com.dk.dermokometicapi.model.mapper;
 
 import com.dk.dermokometicapi.model.dto.AnswerLikeRequestDTO;
+import com.dk.dermokometicapi.model.dto.AnswerLikeResponseDTO;
 import com.dk.dermokometicapi.model.entity.AnswerLike;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -13,5 +14,9 @@ public class AnswerLikeMapper {
 
     public AnswerLike convertToEntity(AnswerLikeRequestDTO answerLikeRequestDTO) {
         return modelMapper.map(answerLikeRequestDTO, AnswerLike.class);
+    }
+
+    public AnswerLikeResponseDTO convertToDTO(AnswerLike answerLike) {
+        return modelMapper.map(answerLike, AnswerLikeResponseDTO.class);
     }
 }
