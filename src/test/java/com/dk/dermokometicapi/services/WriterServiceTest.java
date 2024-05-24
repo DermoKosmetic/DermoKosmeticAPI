@@ -1,9 +1,8 @@
 package com.dk.dermokometicapi.services;
 
-import com.dk.dermokometicapi.model.entity.Writer;
-import com.dk.dermokometicapi.model.mapper.WriterMapper;
-import com.dk.dermokometicapi.model.repository.WriterRepository;
-import com.dk.dermokometicapi.model.service.WriterService;
+import com.dk.dermokometicapi.models.entity.Writer;
+import com.dk.dermokometicapi.mappers.WriterMapper;
+import com.dk.dermokometicapi.repositories.WriterRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

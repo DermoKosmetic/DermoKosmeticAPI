@@ -1,15 +1,14 @@
 package com.dk.dermokometicapi.services;
 
-import com.dk.dermokometicapi.model.dto.UserRequestDTO;
-import com.dk.dermokometicapi.model.dto.UserResponseDTO;
-import com.dk.dermokometicapi.model.dto.UserUpdateDTO;
-import com.dk.dermokometicapi.model.dto.UserValidationDTO;
-import com.dk.dermokometicapi.model.entity.User;
-import com.dk.dermokometicapi.model.exception.BadRequestException;
-import com.dk.dermokometicapi.model.exception.ResourceNotFoundException;
-import com.dk.dermokometicapi.model.mapper.UserMapper;
-import com.dk.dermokometicapi.model.repository.UserRepository;
-import com.dk.dermokometicapi.model.service.UserService;
+import com.dk.dermokometicapi.models.dto.UserRequestDTO;
+import com.dk.dermokometicapi.models.dto.UserResponseDTO;
+import com.dk.dermokometicapi.models.dto.UserUpdateDTO;
+import com.dk.dermokometicapi.models.dto.UserValidationDTO;
+import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.exceptions.BadRequestException;
+import com.dk.dermokometicapi.exceptions.ResourceNotFoundException;
+import com.dk.dermokometicapi.mappers.UserMapper;
+import com.dk.dermokometicapi.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

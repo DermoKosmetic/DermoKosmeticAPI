@@ -1,19 +1,18 @@
 package com.dk.dermokometicapi.services;
 
-import com.dk.dermokometicapi.model.dto.*;
-import com.dk.dermokometicapi.model.entity.Article;
-import com.dk.dermokometicapi.model.entity.Comment;
-import com.dk.dermokometicapi.model.entity.CommentLike;
-import com.dk.dermokometicapi.model.entity.User;
-import com.dk.dermokometicapi.model.exception.BadRequestException;
-import com.dk.dermokometicapi.model.exception.ResourceNotFoundException;
-import com.dk.dermokometicapi.model.mapper.CommentLikeMapper;
-import com.dk.dermokometicapi.model.mapper.CommentMapper;
-import com.dk.dermokometicapi.model.repository.ArticleRepository;
-import com.dk.dermokometicapi.model.repository.CommentLikeRepository;
-import com.dk.dermokometicapi.model.repository.CommentRepository;
-import com.dk.dermokometicapi.model.repository.UserRepository;
-import com.dk.dermokometicapi.model.service.CommentService;
+import com.dk.dermokometicapi.models.dto.*;
+import com.dk.dermokometicapi.models.entity.Article;
+import com.dk.dermokometicapi.models.entity.Comment;
+import com.dk.dermokometicapi.models.entity.CommentLike;
+import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.exceptions.BadRequestException;
+import com.dk.dermokometicapi.exceptions.ResourceNotFoundException;
+import com.dk.dermokometicapi.mappers.CommentLikeMapper;
+import com.dk.dermokometicapi.mappers.CommentMapper;
+import com.dk.dermokometicapi.repositories.ArticleRepository;
+import com.dk.dermokometicapi.repositories.CommentLikeRepository;
+import com.dk.dermokometicapi.repositories.CommentRepository;
+import com.dk.dermokometicapi.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,7 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.*;
 
