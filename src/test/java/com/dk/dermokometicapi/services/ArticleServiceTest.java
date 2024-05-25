@@ -1,9 +1,6 @@
 package com.dk.dermokometicapi.services;
 
-import com.dk.dermokometicapi.model.dto.ArticleLikeRequestDTO;
-import com.dk.dermokometicapi.model.dto.ArticleLikeResponseDTO;
-import com.dk.dermokometicapi.model.dto.ArticleRequestDTO;
-import com.dk.dermokometicapi.model.dto.ArticleResponseDTO;
+import com.dk.dermokometicapi.model.dto.*;
 import com.dk.dermokometicapi.model.entity.*;
 import com.dk.dermokometicapi.model.exception.BadRequestException;
 import com.dk.dermokometicapi.model.exception.ResourceNotFoundException;
@@ -20,8 +17,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,865 @@ public class ArticleServiceTest {
 
     @InjectMocks
     private ArticleService articleService;
+
+    @Test
+    public void testGetAllArticles(){
+        // Arrange
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail2);
+
+        List<Article> articles = Arrays.asList(article1, article2);
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO();
+        dto1.setId(article1.getId());
+        dto1.setTitle(article1.getTitle());
+        dto1.setDescription(article1.getDescription());
+        dto1.setType(article1.getType());
+        dto1.setMainImg(article1.getMainImg());
+        dto1.setPublicationDate(LocalDate.now().toString());
+        dto1.setLastUpdateDate(LocalDate.now().toString());
+        dto1.setLikes(likes1);
+        dto1.setComments(comments1);
+
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO();
+        dto2.setId(article2.getId());
+        dto2.setTitle(article2.getTitle());
+        dto2.setDescription(article2.getDescription());
+        dto2.setType(article2.getType());
+        dto2.setMainImg(article2.getMainImg());
+        dto2.setPublicationDate(LocalDate.now().toString());
+        dto2.setLastUpdateDate(LocalDate.now().toString());
+        dto2.setLikes(likes2);
+        dto2.setComments(comments2);
+
+        when(articleRepository.getAll()).thenReturn(articles);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        List<ArticleSummaryResponseDTO> result = articleService.getAllArticles();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(dto1, result.get(0));
+        assertEquals(dto2, result.get(1));
+        verify(articleRepository, times(1)).getAll();
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
+
+    @Test
+    public void testDeleteById(){
+        // Arrange
+        Long articleDetailId = 1L;
+        Long articleId = 1L;
+
+        ArticleDetail articleDetail = new ArticleDetail();
+        articleDetail.setId(articleDetailId);
+
+        Article article = new Article();
+        article.setId(articleId);
+        article.setArticleDetail(articleDetail);
+
+        when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+
+        // Act
+        articleService.deleteById(articleId);
+
+        // Assert
+        verify(articleRepository, times(1)).findById(articleId);
+        verify(articleRepository, times(1)).deleteById(articleId);
+        verify(articleDetailRepository, times(1)).delete(articleDetail);
+    }
+
+    @Test
+    public void testDeleteById_ArticleNotFound() {
+        // Arrange
+        Long articleId = 1L;
+
+        when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> articleService.deleteById(articleId));
+
+    }
+
+    @Test
+    public void testDeleteByTitle(){
+        // Arrange
+        Long articleDetailId = 1L;
+        ArticleDetail articleDetail = new ArticleDetail();
+        articleDetail.setId(articleDetailId);
+
+        Long articleId = 1L;
+        String title = "title";
+        Article article = new Article();
+        article.setId(articleId);
+        article.setTitle(title);
+
+        article.setArticleDetail(articleDetail);
+
+        when (articleRepository.findByTitle(title)).thenReturn(Optional.of(article));
+
+        // Act
+        articleService.deleteByTitle(title);
+
+        // Assert
+        verify(articleRepository, times(1)).findByTitle(title);
+        verify(articleRepository, times(1)).deleteByTitle(title);
+        verify(articleDetailRepository, times(1)).delete(articleDetail);
+    }
+
+    @Test
+    public void testDeleteByTitle_ArticleNotFound() {
+        // Arrange
+        String title = "Title1";
+
+        when(articleRepository.findByTitle(title)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> articleService.deleteByTitle(title));
+    }
+
+    @Test
+    public void testExistsByTitle() {
+        // Arrange
+        String title = "Title1";
+        when(articleRepository.existsByTitle(title)).thenReturn(true);
+
+        // Act
+        boolean result = articleService.existsByTitle(title);
+
+        // Assert
+        assertTrue(result);
+        verify(articleRepository, times(1)).existsByTitle(title);
+    }
+
+    @Test
+    public void testExistsByTitle_ArticleNotExists() {
+        // Arrange
+        String title = "Title1";
+        when(articleRepository.existsByTitle(title)).thenReturn(false);
+
+        // Act
+        boolean result = articleService.existsByTitle(title);
+
+        // Assert
+        assertFalse(result);
+        verify(articleRepository, times(1)).existsByTitle(title);
+    }
+
+    //DONE
+    @Test
+    public void testGetByTitle() {
+        // Arrange
+        String title = "Title1";
+        Article article = new Article();
+        article.setTitle(title);
+
+        Long likes = 10L;
+        Long comments = 5L;
+
+        ArticleSummaryResponseDTO articleSummaryResponseDTO = new ArticleSummaryResponseDTO();
+        articleSummaryResponseDTO.setTitle(title);
+        articleSummaryResponseDTO.setLikes(likes);
+        articleSummaryResponseDTO.setComments(comments);
+
+        when(articleRepository.findByTitle(title)).thenReturn(Optional.of(article));
+        when(articleRepository.findArticleLikesById(article.getId())).thenReturn(likes);
+        when(articleRepository.findArticleCommentsById(article.getId())).thenReturn(comments);
+
+        when(articleMapper.convertToSummaryDTO(article, likes, comments)).thenReturn(articleSummaryResponseDTO);
+
+        // Act
+        ArticleSummaryResponseDTO result = articleService.getByTitle(title);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(articleSummaryResponseDTO, result);
+        verify(articleRepository, times(1)).findByTitle(title);
+        verify(articleRepository, times(1)).findArticleLikesById(article.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article, likes, comments);
+    }
+
+    @Test
+    public void testGetByTitle_ArticleNotFound() {
+        // Arrange
+        String title = "Title";
+
+        when(articleRepository.findByTitle(title)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> articleService.getByTitle(title));
+
+        verify(articleRepository, times(1)).findByTitle(title);
+
+        verify(articleRepository, never()).findArticleLikesById(anyLong());
+        verify(articleRepository, never()).findArticleCommentsById(anyLong());
+        verify(articleMapper, never()).convertToSummaryDTO(any(Article.class), anyLong(), anyLong());
+    }
+
+    @Test
+    public void testGetAllArticlesSummary() {
+        // Arrange
+
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail1);
+        article2.setArticleDetail(articleDetail2);
+
+        List<Article> articles = Arrays.asList(article1, article2);
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO();
+        dto1.setId(article1.getId());
+        dto1.setTitle(article1.getTitle());
+        dto1.setDescription(article1.getDescription());
+        dto1.setType(article1.getType());
+        dto1.setMainImg(article1.getMainImg());
+        dto1.setPublicationDate(LocalDate.now().toString());
+        dto1.setLastUpdateDate(LocalDate.now().toString());
+        dto1.setLikes(likes1);
+        dto1.setComments(comments1);
+
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO();
+        dto2.setId(article2.getId());
+        dto2.setTitle(article2.getTitle());
+        dto2.setDescription(article2.getDescription());
+        dto2.setType(article2.getType());
+        dto2.setMainImg(article2.getMainImg());
+        dto2.setPublicationDate(LocalDate.now().toString());
+        dto2.setLastUpdateDate(LocalDate.now().toString());
+        dto2.setLikes(likes2);
+        dto2.setComments(comments2);
+
+        when(articleRepository.findAll()).thenReturn(articles);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        List<ArticleSummaryResponseDTO> result = articleService.getAllArticlesSummary();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(dto1, result.get(0));
+        assertEquals(dto2, result.get(1));
+        verify(articleRepository, times(1)).findAll();
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
+
+    @Test
+    public void testGetRecentArticles() {
+        // Arrange
+        int pageNum = 0;
+        int pageSize = 2;
+
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail2);
+
+        List<Article> articleList = Arrays.asList(article1, article2);
+        Page<Article> articlesPage = new PageImpl<>(articleList, PageRequest.of(pageNum, pageSize), articleList.size());
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO();
+        dto1.setId(article1.getId());
+        dto1.setTitle(article1.getTitle());
+        dto1.setDescription(article1.getDescription());
+        dto1.setType(article1.getType());
+        dto1.setMainImg(article1.getMainImg());
+        dto1.setPublicationDate(article1.getPublicationDate().toString());
+        dto1.setLastUpdateDate(article1.getLastUpdateDate().toString());
+        dto1.setLikes(likes1);
+        dto1.setComments(comments1);
+
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO();
+        dto2.setId(article2.getId());
+        dto2.setTitle(article2.getTitle());
+        dto2.setDescription(article2.getDescription());
+        dto2.setType(article2.getType());
+        dto2.setMainImg(article2.getMainImg());
+        dto2.setPublicationDate(article2.getPublicationDate().toString());
+        dto2.setLastUpdateDate(article2.getLastUpdateDate().toString());
+        dto2.setLikes(likes2);
+        dto2.setComments(comments2);
+
+        when(articleRepository.findRecentArticles(PageRequest.of(pageNum, pageSize))).thenReturn(articlesPage);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        Page<ArticleSummaryResponseDTO> result = articleService.getRecentArticles(pageNum, pageSize);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getSize());
+        assertEquals(dto1, result.getContent().get(0));
+        assertEquals(dto2, result.getContent().get(1));
+        verify(articleRepository, times(1)).findRecentArticles(PageRequest.of(pageNum, pageSize));
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
+
+    @Test
+    public void testGetArticlesOrderedByLikes() {
+        // Arrange
+        int pageNum = 0;
+        int pageSize = 2;
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail2);
+        List<Article> articlesList = Arrays.asList(article1, article2);
+        Page<Article> articlesPage = new PageImpl<>(articlesList, pageRequest, articlesList.size());
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO(1L, "Title1", "Description1", "Type1", "image1.png", LocalDate.now().toString(), LocalDate.now().toString(), likes1, comments1);
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO(2L, "Title2", "Description2", "Type2", "image2.png", LocalDate.now().toString(), LocalDate.now().toString(), likes2, comments2);
+
+        when(articleRepository.findLikedArticles(pageRequest)).thenReturn(articlesPage);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        Page<ArticleSummaryResponseDTO> result = articleService.getArticlesOrderedByLikes(pageNum, pageSize);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+        assertEquals(dto1, result.getContent().get(0));
+        assertEquals(dto2, result.getContent().get(1));
+        verify(articleRepository, times(1)).findLikedArticles(pageRequest);
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
+
+    @Test
+    public void testGetArticlesOrderedByComments() {
+        // Arrange
+        int pageNum = 0;
+        int pageSize = 2;
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail2);
+
+        List<Article> articlesList = Arrays.asList(article1, article2);
+        Page<Article> articlesPage = new PageImpl<>(articlesList, pageRequest, articlesList.size());
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO(1L, "Title1", "Description1", "Type1", "image1.png", LocalDate.now().toString(), LocalDate.now().toString(), likes1, comments1);
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO(2L, "Title2", "Description2", "Type2", "image2.png", LocalDate.now().toString(), LocalDate.now().toString(), likes2, comments2);
+
+        when(articleRepository.findCommentedArticles(pageRequest)).thenReturn(articlesPage);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        Page<ArticleSummaryResponseDTO> result = articleService.getArticlesOrderedByComments(pageNum, pageSize);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+        assertEquals(dto1, result.getContent().get(0));
+        assertEquals(dto2, result.getContent().get(1));
+        verify(articleRepository, times(1)).findCommentedArticles(pageRequest);
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
+
+    @Test
+    public void testGetArticlesByType() {
+        // Arrange
+        List<String> types = Arrays.asList("Type1", "Type2");
+        int pageNum = 0;
+        int pageSize = 2;
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail2);
+
+        List<Article> articlesList = Arrays.asList(article1, article2);
+        Page<Article> articlesPage = new PageImpl<>(articlesList, pageRequest, articlesList.size());
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO(1L, "Title1", "Description1", "Type1", "image1.png", LocalDate.now().toString(), LocalDate.now().toString(), likes1, comments1);
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO(2L, "Title2", "Description2", "Type2", "image2.png", LocalDate.now().toString(), LocalDate.now().toString(), likes2, comments2);
+
+        when(articleRepository.findByType(types, pageRequest)).thenReturn(articlesPage);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        Page<ArticleSummaryResponseDTO> result = articleService.getArticlesByType(types, pageNum, pageSize);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+        assertEquals(dto1, result.getContent().get(0));
+        assertEquals(dto2, result.getContent().get(1));
+        verify(articleRepository, times(1)).findByType(types, pageRequest);
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
+
+    @Test
+    public void testGetLikedArticlesByType() {
+        // Arrange
+        List<String> types = Arrays.asList("Type1", "Type2");
+        int pageNum = 0;
+        int pageSize = 2;
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail2);
+
+        List<Article> articlesList = Arrays.asList(article1, article2);
+        Page<Article> articlesPage = new PageImpl<>(articlesList, pageRequest, articlesList.size());
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO(1L, "Title1", "Description1", "Type1", "image1.png", LocalDate.now().toString(), LocalDate.now().toString(), likes1, comments1);
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO(2L, "Title2", "Description2", "Type2", "image2.png", LocalDate.now().toString(), LocalDate.now().toString(), likes2, comments2);
+
+        when(articleRepository.findLikedArticleByType(types, pageRequest)).thenReturn(articlesPage);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        Page<ArticleSummaryResponseDTO> result = articleService.getLikedArticlesByType(types, pageNum, pageSize);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+        assertEquals(dto1, result.getContent().get(0));
+        assertEquals(dto2, result.getContent().get(1));
+        verify(articleRepository, times(1)).findLikedArticleByType(types, pageRequest);
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
+
+    @Test
+    public void testGetCommentedArticlesByType() {
+        // Arrange
+        List<String> types = Arrays.asList("Type1", "Type2");
+        int pageNum = 0;
+        int pageSize = 2;
+        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail2);
+        List<Article> articlesList = Arrays.asList(article1, article2);
+        Page<Article> articlesPage = new PageImpl<>(articlesList, pageRequest, articlesList.size());
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO(1L, "Title1", "Description1", "Type1", "image1.png", LocalDate.now().toString(), LocalDate.now().toString(), likes1, comments1);
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO(2L, "Title2", "Description2", "Type2", "image2.png", LocalDate.now().toString(), LocalDate.now().toString(), likes2, comments2);
+
+        when(articleRepository.findCommentedArticleByType(types, pageRequest)).thenReturn(articlesPage);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        Page<ArticleSummaryResponseDTO> result = articleService.getCommentedArticlesByType(types, pageNum, pageSize);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+        assertEquals(dto1, result.getContent().get(0));
+        assertEquals(dto2, result.getContent().get(1));
+        verify(articleRepository, times(1)).findCommentedArticleByType(types, pageRequest);
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
+
+
+    @Test
+    public void testGetFilteredList() {
+        // Arrange
+        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
+        filterRequestDTO.setOrderBy("likes");
+        filterRequestDTO.setPageNum(0);
+        filterRequestDTO.setPageSize(2);
+        filterRequestDTO.setCategories(Arrays.asList("Type1", "Type2"));
+
+        PageRequest pageRequest = PageRequest.of(filterRequestDTO.getPageNum(), filterRequestDTO.getPageSize());
+
+        ArticleDetail articleDetail1 = new ArticleDetail();
+        articleDetail1.setId(1L);
+        articleDetail1.setContent("Content1");
+
+        ArticleDetail articleDetail2 = new ArticleDetail();
+        articleDetail2.setId(2L);
+        articleDetail2.setContent("Content2");
+
+        Article article1 = new Article();
+        article1.setId(1L);
+        article1.setTitle("Title1");
+        article1.setDescription("Description1");
+        article1.setType("Type1");
+        article1.setMainImg("image1.png");
+        article1.setPublicationDate(LocalDate.now());
+        article1.setLastUpdateDate(LocalDate.now());
+        article1.setArticleDetail(articleDetail1);
+
+        Article article2 = new Article();
+        article2.setId(2L);
+        article2.setTitle("Title2");
+        article2.setDescription("Description2");
+        article2.setType("Type2");
+        article2.setMainImg("image2.png");
+        article2.setPublicationDate(LocalDate.now());
+        article2.setLastUpdateDate(LocalDate.now());
+        article2.setArticleDetail(articleDetail2);
+        List<Article> articlesList = Arrays.asList(article1, article2);
+        Page<Article> articlesPage = new PageImpl<>(articlesList, pageRequest, articlesList.size());
+
+        Long likes1 = 10L;
+        Long comments1 = 5L;
+        Long likes2 = 20L;
+        Long comments2 = 15L;
+
+        ArticleSummaryResponseDTO dto1 = new ArticleSummaryResponseDTO(1L, "Title1", "Description1", "Type1", "image1.png", LocalDate.now().toString(), LocalDate.now().toString(), likes1, comments1);
+        ArticleSummaryResponseDTO dto2 = new ArticleSummaryResponseDTO(2L, "Title2", "Description2", "Type2", "image2.png", LocalDate.now().toString(), LocalDate.now().toString(), likes2, comments2);
+
+        when(articleRepository.findLikedArticleByType(filterRequestDTO.getCategories(), pageRequest)).thenReturn(articlesPage);
+        when(articleRepository.findArticleLikesById(article1.getId())).thenReturn(likes1);
+        when(articleRepository.findArticleCommentsById(article1.getId())).thenReturn(comments1);
+        when(articleRepository.findArticleLikesById(article2.getId())).thenReturn(likes2);
+        when(articleRepository.findArticleCommentsById(article2.getId())).thenReturn(comments2);
+
+        when(articleMapper.convertToSummaryDTO(article1, likes1, comments1)).thenReturn(dto1);
+        when(articleMapper.convertToSummaryDTO(article2, likes2, comments2)).thenReturn(dto2);
+
+        // Act
+        Page<ArticleSummaryResponseDTO> result = articleService.getFilteredList(filterRequestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+        assertEquals(dto1, result.getContent().get(0));
+        assertEquals(dto2, result.getContent().get(1));
+        verify(articleRepository, times(1)).findLikedArticleByType(filterRequestDTO.getCategories(), pageRequest);
+        verify(articleRepository, times(1)).findArticleLikesById(article1.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article1.getId());
+        verify(articleRepository, times(1)).findArticleLikesById(article2.getId());
+        verify(articleRepository, times(1)).findArticleCommentsById(article2.getId());
+        verify(articleMapper, times(1)).convertToSummaryDTO(article1, likes1, comments1);
+        verify(articleMapper, times(1)).convertToSummaryDTO(article2, likes2, comments2);
+    }
 
     @Test
     public void testGetFullArticleById() {
