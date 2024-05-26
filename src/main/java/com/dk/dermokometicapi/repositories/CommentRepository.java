@@ -1,6 +1,6 @@
 package com.dk.dermokometicapi.repositories;
 
-import com.dk.dermokometicapi.models.entity.Comment;
+import com.dk.dermokometicapi.models.entities.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

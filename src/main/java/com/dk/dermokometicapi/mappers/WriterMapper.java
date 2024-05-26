@@ -2,7 +2,7 @@ package com.dk.dermokometicapi.mappers;
 
 import com.dk.dermokometicapi.models.dto.WriterRequestDTO;
 import com.dk.dermokometicapi.models.dto.WriterResponseDTO;
-import com.dk.dermokometicapi.models.entity.Writer;
+import com.dk.dermokometicapi.models.entities.Writer;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

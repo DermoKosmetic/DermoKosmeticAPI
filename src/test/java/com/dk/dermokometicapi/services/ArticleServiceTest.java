@@ -1,19 +1,11 @@
 package com.dk.dermokometicapi.services;
 
 
-import com.dk.dermokometicapi.model.dto.*;
-import com.dk.dermokometicapi.model.entity.*;
-import com.dk.dermokometicapi.model.exception.BadRequestException;
-import com.dk.dermokometicapi.model.exception.ResourceNotFoundException;
-import com.dk.dermokometicapi.model.mapper.ArticleLikeMapper;
-import com.dk.dermokometicapi.model.mapper.ArticleMapper;
-import com.dk.dermokometicapi.model.repository.ArticleDetailRepository;
-import com.dk.dermokometicapi.model.repository.ArticleLikeRepository;
-import com.dk.dermokometicapi.model.repository.ArticleRepository;
-import com.dk.dermokometicapi.model.service.ArticleService;
-import com.dk.dermokometicapi.model.service.UserService;
-import com.dk.dermokometicapi.model.service.WriterService;
-
+import com.dk.dermokometicapi.mappers.*;
+import com.dk.dermokometicapi.models.dto.*;
+import com.dk.dermokometicapi.models.entities.*;
+import com.dk.dermokometicapi.repositories.*;
+import com.dk.dermokometicapi.exceptions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,7 +16,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

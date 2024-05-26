@@ -1,7 +1,7 @@
 package com.dk.dermokometicapi.services;
 
 import com.dk.dermokometicapi.models.dto.WriterResponseDTO;
-import com.dk.dermokometicapi.models.entity.Writer;
+import com.dk.dermokometicapi.models.entities.Writer;
 import com.dk.dermokometicapi.mappers.WriterMapper;
 import com.dk.dermokometicapi.repositories.WriterRepository;
 import lombok.AllArgsConstructor;

@@ -2,7 +2,7 @@ package com.dk.dermokometicapi.mappers;
 
 import com.dk.dermokometicapi.models.dto.QuestionRequestDTO;
 import com.dk.dermokometicapi.models.dto.QuestionResponseDTO;
-import com.dk.dermokometicapi.models.entity.Question;
+import com.dk.dermokometicapi.models.entities.Question;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;

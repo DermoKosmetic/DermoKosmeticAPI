@@ -2,7 +2,7 @@ package com.dk.dermokometicapi.mappers;
 
 import com.dk.dermokometicapi.models.dto.ArticleLikeRequestDTO;
 import com.dk.dermokometicapi.models.dto.ArticleLikeResponseDTO;
-import com.dk.dermokometicapi.models.entity.ArticleLike;
+import com.dk.dermokometicapi.models.entities.ArticleLike;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

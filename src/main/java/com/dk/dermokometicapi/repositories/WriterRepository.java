@@ -1,6 +1,6 @@
 package com.dk.dermokometicapi.repositories;
 
-import com.dk.dermokometicapi.models.entity.Writer;
+import com.dk.dermokometicapi.models.entities.Writer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

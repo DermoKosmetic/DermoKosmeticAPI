@@ -4,7 +4,7 @@ import com.dk.dermokometicapi.models.dto.UserRequestDTO;
 import com.dk.dermokometicapi.models.dto.UserResponseDTO;
 import com.dk.dermokometicapi.models.dto.UserUpdateDTO;
 import com.dk.dermokometicapi.models.dto.UserValidationDTO;
-import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.models.entities.User;
 import com.dk.dermokometicapi.exceptions.BadRequestException;
 import com.dk.dermokometicapi.exceptions.ResourceNotFoundException;
 import com.dk.dermokometicapi.mappers.UserMapper;

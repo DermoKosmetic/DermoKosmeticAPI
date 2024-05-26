@@ -4,9 +4,9 @@ import com.dk.dermokometicapi.exceptions.BadRequestException;
 import com.dk.dermokometicapi.exceptions.ResourceNotFoundException;
 import com.dk.dermokometicapi.mappers.QuestionLikeMapper;
 import com.dk.dermokometicapi.models.dto.*;
-import com.dk.dermokometicapi.models.entity.Question;
-import com.dk.dermokometicapi.models.entity.QuestionLike;
-import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.models.entities.Question;
+import com.dk.dermokometicapi.models.entities.QuestionLike;
+import com.dk.dermokometicapi.models.entities.User;
 
 import com.dk.dermokometicapi.mappers.ArticleMapper;
 import com.dk.dermokometicapi.mappers.QuestionMapper;
