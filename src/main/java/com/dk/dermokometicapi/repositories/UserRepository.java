@@ -1,6 +1,6 @@
 package com.dk.dermokometicapi.repositories;
 
-import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.models.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

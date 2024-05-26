@@ -1,8 +1,8 @@
 package com.dk.dermokometicapi.repositories;
 
-import com.dk.dermokometicapi.models.entity.Comment;
-import com.dk.dermokometicapi.models.entity.CommentLike;
-import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.models.entities.Comment;
+import com.dk.dermokometicapi.models.entities.CommentLike;
+import com.dk.dermokometicapi.models.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

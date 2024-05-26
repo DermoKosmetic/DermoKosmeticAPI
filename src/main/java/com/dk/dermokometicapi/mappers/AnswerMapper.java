@@ -2,9 +2,9 @@ package com.dk.dermokometicapi.mappers;
 
 import com.dk.dermokometicapi.models.dto.AnswerRequestDTO;
 import com.dk.dermokometicapi.models.dto.AnswerResponseDTO;
-import com.dk.dermokometicapi.models.entity.Answer;
-import com.dk.dermokometicapi.models.entity.Question;
-import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.models.entities.Answer;
+import com.dk.dermokometicapi.models.entities.Question;
+import com.dk.dermokometicapi.models.entities.User;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

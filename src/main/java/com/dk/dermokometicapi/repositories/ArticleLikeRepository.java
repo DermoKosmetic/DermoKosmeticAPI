@@ -1,8 +1,8 @@
 package com.dk.dermokometicapi.repositories;
 
-import com.dk.dermokometicapi.models.entity.Article;
-import com.dk.dermokometicapi.models.entity.ArticleLike;
-import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.models.entities.Article;
+import com.dk.dermokometicapi.models.entities.ArticleLike;
+import com.dk.dermokometicapi.models.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ArticleLikeRepository extends JpaRepository<ArticleLike, Long> {

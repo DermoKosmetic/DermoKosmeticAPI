@@ -1,4 +1,4 @@
-package com.dk.dermokometicapi.models.entity;
+package com.dk.dermokometicapi.models.entities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

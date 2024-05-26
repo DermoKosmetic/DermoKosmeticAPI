@@ -1,4 +1,4 @@
-package com.dk.dermokometicapi.models.entity;
+package com.dk.dermokometicapi.models.entities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,8 +9,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "answer_likes")
-public class AnswerLike {
+@Table(name = "article_likes")
+public class ArticleLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,11 +20,11 @@ public class AnswerLike {
 
     @ManyToOne
     @JoinColumn(
-            name = "answer_id",
+            name = "article_id",
             referencedColumnName = "id",
             nullable = false
     )
-    private Answer answer;
+    private Article article;
 
     @ManyToOne
     @JoinColumn(

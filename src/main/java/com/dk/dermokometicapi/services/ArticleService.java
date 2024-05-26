@@ -3,7 +3,7 @@ package com.dk.dermokometicapi.services;
 import com.dk.dermokometicapi.exceptions.BadRequestException;
 import com.dk.dermokometicapi.exceptions.ResourceNotFoundException;
 import com.dk.dermokometicapi.models.dto.*;
-import com.dk.dermokometicapi.models.entity.*;
+import com.dk.dermokometicapi.models.entities.*;
 import com.dk.dermokometicapi.mappers.ArticleLikeMapper;
 import com.dk.dermokometicapi.mappers.ArticleMapper;
 import com.dk.dermokometicapi.repositories.ArticleDetailRepository;

@@ -4,11 +4,11 @@ package com.dk.dermokometicapi.services;
 import com.dk.dermokometicapi.exceptions.BadRequestException;
 import com.dk.dermokometicapi.exceptions.ResourceNotFoundException;
 import com.dk.dermokometicapi.models.dto.*;
-import com.dk.dermokometicapi.models.entity.Article;
-import com.dk.dermokometicapi.models.entity.Comment;
+import com.dk.dermokometicapi.models.entities.Article;
+import com.dk.dermokometicapi.models.entities.Comment;
 
-import com.dk.dermokometicapi.models.entity.CommentLike;
-import com.dk.dermokometicapi.models.entity.User;
+import com.dk.dermokometicapi.models.entities.CommentLike;
+import com.dk.dermokometicapi.models.entities.User;
 import com.dk.dermokometicapi.mappers.CommentLikeMapper;
 import com.dk.dermokometicapi.mappers.CommentMapper;
 import com.dk.dermokometicapi.repositories.ArticleRepository;

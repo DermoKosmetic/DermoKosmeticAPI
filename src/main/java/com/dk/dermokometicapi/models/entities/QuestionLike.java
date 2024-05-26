@@ -1,34 +1,22 @@
-package com.dk.dermokometicapi.models.entity;
+package com.dk.dermokometicapi.models.entities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "answers")
-public class Answer {
+@Table(name = "question_likes")
+public class QuestionLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 200)
-    private String content;
-
     @Column(nullable = false)
-    private LocalDate publicationDate;
-
-    @ManyToOne
-    @JoinColumn(
-            name = "parent_id",
-            referencedColumnName = "id",
-            nullable = true
-    )
-    private Answer parentAnswer;
+    private LocalDate likeDate;
 
     @ManyToOne
     @JoinColumn(
