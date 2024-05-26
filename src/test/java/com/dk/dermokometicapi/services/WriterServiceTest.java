@@ -13,8 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -96,12 +95,7 @@ public class WriterServiceTest {
         // Arrange
         when(writerRepository.findById(1L)).thenReturn(java.util.Optional.empty());
 
-        // Act
-        try {
-            writerService.getById(1L);
-        } catch (RuntimeException e) {
-            // Assert
-            assertEquals("Writer not found", e.getMessage());
-        }
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> writerService.getById(1L));
     }
 }
