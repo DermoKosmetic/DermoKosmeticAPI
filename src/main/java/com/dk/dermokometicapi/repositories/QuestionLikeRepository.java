@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface QuestionLikeRepository extends JpaRepository<QuestionLike, Long> {
     boolean existsByQuestionAndUser(Question question, User user);
     void deleteByQuestionAndUser(Question question, User user);
+    long countByQuestion(Question question);
 }

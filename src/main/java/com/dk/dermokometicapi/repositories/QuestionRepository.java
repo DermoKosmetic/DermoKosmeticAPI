@@ -31,8 +31,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query(value = "SELECT COUNT(*) FROM questions q LEFT JOIN answers a ON q.id = a.question_id WHERE a.question_id = :questionId", nativeQuery = true)
     Long findQuestionAnswersById(@Param("questionId") Long id);
 
-    @Query("SELECT COUNT(a) FROM Question q JOIN q.answers a WHERE q.id = :questionId")
-    Long countAnswersByQuestionId(@Param("questionId") Long questionId);
+    @Query("SELECT COUNT(a) FROM Question q JOIN q.answers a WHERE q = :question")
+    Long countAnswersByQuestion(@Param("question") Question question);
 
     // Filtering and ordering questions
     @Query("SELECT q FROM Question q ORDER BY q.publicationDate DESC")
