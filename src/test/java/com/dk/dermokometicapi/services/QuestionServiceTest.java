@@ -5,19 +5,20 @@ import com.dk.dermokometicapi.models.entities.*;
 import com.dk.dermokometicapi.exceptions.*;
 import com.dk.dermokometicapi.mappers.*;
 import com.dk.dermokometicapi.repositories.*;
-import com.dk.dermokometicapi.services.*;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -106,9 +107,7 @@ public class QuestionServiceTest {
         when(questionRepository.existsByTitle(questionRequestDTO.getTitle())).thenReturn(true);
 
         // Act & Assert
-        Exception exception = assertThrows(BadRequestException.class, () -> {
-            questionService.createQuestion(questionRequestDTO);
-        });
+        Exception exception = assertThrows(BadRequestException.class, () -> questionService.createQuestion(questionRequestDTO));
 
         String expectedMessage = "Question with title: " + questionRequestDTO.getTitle() + " already exists";
         String actualMessage = exception.getMessage();
@@ -163,10 +162,10 @@ public class QuestionServiceTest {
         dto2.setAnswers(answers2);
 
         when(questionRepository.findAll()).thenReturn(questionList);
-        when(questionRepository.findQuestionLikesById(question1.getId())).thenReturn(likes1);
-        when(questionRepository.findQuestionAnswersById(question1.getId())).thenReturn(answers1);
-        when(questionRepository.findQuestionLikesById(question2.getId())).thenReturn(likes2);
-        when(questionRepository.findQuestionAnswersById(question2.getId())).thenReturn(answers2);
+        when(questionLikeRepository.countByQuestion(question1)).thenReturn(likes1);
+        when(questionLikeRepository.countByQuestion(question2)).thenReturn(likes2);
+        when(questionRepository.countAnswersByQuestion(question1)).thenReturn(answers1);
+        when(questionRepository.countAnswersByQuestion(question2)).thenReturn(answers2);
 
         when(questionMapper.convertToDTO(question1, likes1, answers1)).thenReturn(dto1);
         when(questionMapper.convertToDTO(question2, likes2, answers2)).thenReturn(dto2);
@@ -179,13 +178,6 @@ public class QuestionServiceTest {
         assertEquals(2, result.size());
         assertEquals(dto1, result.get(0));
         assertEquals(dto2, result.get(1));
-        verify(questionRepository, times(1)).findAll();
-        verify(questionRepository, times(1)).findQuestionLikesById(question1.getId());
-        verify(questionRepository, times(1)).findQuestionAnswersById(question1.getId());
-        verify(questionRepository, times(1)).findQuestionLikesById(question2.getId());
-        verify(questionRepository, times(1)).findQuestionAnswersById(question2.getId());
-        verify(questionMapper, times(1)).convertToDTO(question1, likes1, answers1);
-        verify(questionMapper, times(1)).convertToDTO(question2, likes2, answers2);
     }
 
     @Test
@@ -211,8 +203,8 @@ public class QuestionServiceTest {
         questionResponseDTO.setAnswers(answers);
 
         when(questionRepository.findById(questionId)).thenReturn(Optional.of(question));
-        when(questionRepository.findQuestionLikesById(questionId)).thenReturn(likes);
-        when(questionRepository.findQuestionAnswersById(questionId)).thenReturn(answers);
+        when(questionLikeRepository.countByQuestion(question)).thenReturn(likes);
+        when(questionRepository.countAnswersByQuestion(question)).thenReturn(answers);
         when(questionMapper.convertToDTO(question, likes, answers)).thenReturn(questionResponseDTO);
 
         // Act
@@ -226,12 +218,6 @@ public class QuestionServiceTest {
         assertEquals(questionResponseDTO.getType(), result.getType());
         assertEquals(questionResponseDTO.getLikes(), result.getLikes());
         assertEquals(questionResponseDTO.getAnswers(), result.getAnswers());
-
-        // Verify
-        verify(questionRepository, times(1)).findById(questionId);
-        verify(questionRepository, times(1)).findQuestionLikesById(questionId);
-        verify(questionRepository, times(1)).findQuestionAnswersById(questionId);
-        verify(questionMapper, times(1)).convertToDTO(question, likes, answers);
     }
 
     @Test
@@ -241,9 +227,7 @@ public class QuestionServiceTest {
         when(questionRepository.findById(questionId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            questionService.getQuestionById(questionId);
-        });
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> questionService.getQuestionById(questionId));
 
         assertEquals("Question with id: " + questionId + " not found", exception.getMessage());
 
@@ -278,8 +262,8 @@ public class QuestionServiceTest {
         questionResponseDTO.setAnswers(answers);
 
         when(questionRepository.findByTitle(title)).thenReturn(Optional.of(question));
-        when(questionRepository.findQuestionLikesById(questionId)).thenReturn(likes);
-        when(questionRepository.findQuestionAnswersById(questionId)).thenReturn(answers);
+        when(questionLikeRepository.countByQuestion(any(Question.class))).thenReturn(likes);
+        when(questionRepository.countAnswersByQuestion(any(Question.class))).thenReturn(answers);
         when(questionMapper.convertToDTO(question, likes, answers)).thenReturn(questionResponseDTO);
 
         // Act
@@ -293,12 +277,6 @@ public class QuestionServiceTest {
         assertEquals(questionResponseDTO.getType(), result.getType());
         assertEquals(questionResponseDTO.getLikes(), result.getLikes());
         assertEquals(questionResponseDTO.getAnswers(), result.getAnswers());
-
-        // Verify
-        verify(questionRepository, times(1)).findByTitle(title);
-        verify(questionRepository, times(1)).findQuestionLikesById(questionId);
-        verify(questionRepository, times(1)).findQuestionAnswersById(questionId);
-        verify(questionMapper, times(1)).convertToDTO(question, likes, answers);
     }
 
     @Test
@@ -308,9 +286,7 @@ public class QuestionServiceTest {
         when(questionRepository.findByTitle(title)).thenReturn(Optional.empty());
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            questionService.getQuestionByTitle(title);
-        });
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> questionService.getQuestionByTitle(title));
 
         assertEquals("Question with title: " + title + " not found", exception.getMessage());
 
@@ -344,9 +320,7 @@ public class QuestionServiceTest {
         when(questionRepository.existsById(questionId)).thenReturn(false);
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            questionService.deleteQuestionById(questionId);
-        });
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> questionService.deleteQuestionById(questionId));
 
         assertEquals("Question with id: " + questionId + " not found", exception.getMessage());
 
@@ -412,9 +386,7 @@ public class QuestionServiceTest {
         when(questionRepository.findById(questionId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            questionService.createLike(requestDTO);
-        });
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> questionService.createLike(requestDTO));
 
         assertEquals("Question not found with id: " + questionId, exception.getMessage());
         verify(questionRepository, times(1)).findById(questionId);
@@ -445,9 +417,7 @@ public class QuestionServiceTest {
         when(questionLikeRepository.existsByQuestionAndUser(question, user)).thenReturn(true);
 
         // Act & Assert
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
-            questionService.createLike(requestDTO);
-        });
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> questionService.createLike(requestDTO));
 
         assertEquals("User already liked this question", exception.getMessage());
         verify(questionRepository, times(1)).findById(questionId);
@@ -499,9 +469,7 @@ public class QuestionServiceTest {
         when(questionRepository.findById(questionId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            questionService.deleteLike(requestDTO);
-        });
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> questionService.deleteLike(requestDTO));
 
         assertEquals("Article not found with id: " + questionId, exception.getMessage());
         verify(questionRepository, times(1)).findById(questionId);
@@ -528,9 +496,7 @@ public class QuestionServiceTest {
         when(userService.getEntityById(userId)).thenThrow(new ResourceNotFoundException("User not found with id: " + userId));
 
         // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            questionService.deleteLike(requestDTO);
-        });
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> questionService.deleteLike(requestDTO));
 
         assertEquals("User not found with id: " + userId, exception.getMessage());
         verify(questionRepository, times(1)).findById(questionId);
@@ -560,14 +526,318 @@ public class QuestionServiceTest {
         when(questionLikeRepository.existsByQuestionAndUser(question, user)).thenReturn(false);
 
         // Act & Assert
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
-            questionService.deleteLike(requestDTO);
-        });
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> questionService.deleteLike(requestDTO));
 
         assertEquals("User did not like this article", exception.getMessage());
         verify(questionRepository, times(1)).findById(questionId);
         verify(userService, times(1)).getEntityById(userId);
         verify(questionLikeRepository, times(1)).existsByQuestionAndUser(question, user);
         verify(questionLikeRepository, never()).deleteByQuestionAndUser(any(Question.class), any(User.class));
+    }
+
+    @Test
+    public void testGetFilteredList_likes(){
+        // Arrange
+        List<String> types = new ArrayList<>();
+        List<Question> questions = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Question question = new Question();
+            question.setId((long) i);
+            question.setTitle("Title" + i);
+            question.setContent("Content" + i);
+            question.setType("type 1");
+            question.setPublicationDate(LocalDate.now());
+            questions.add(question);
+        }
+
+        Pageable pageable = Pageable.ofSize(5).withPage(0);
+        Page<Question> page = new PageImpl<>(questions, pageable, questions.size());
+
+        when(questionRepository.findLikedQuestions(pageable)).thenReturn(page);
+        when(questionLikeRepository.countByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionRepository.countAnswersByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionMapper.convertToDTO(any(Question.class), anyLong(), anyLong())).thenAnswer(invocation -> {
+            Question question = invocation.getArgument(0);
+            Long likes = 0L;
+            Long answers = 0L;
+            return new QuestionResponseDTO(question.getId(), question.getTitle(), question.getContent(), question.getPublicationDate().toString(), question.getType(), question.getId(), likes, answers);
+        });
+
+        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
+        filterRequestDTO.setOrderBy("likes");
+        filterRequestDTO.setPageSize(5);
+        filterRequestDTO.setPageNum(0);
+        filterRequestDTO.setCategories(types);
+
+        // Act
+        Page<QuestionResponseDTO> result = questionService.getFilteredList(filterRequestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(5, result.getContent().size());
+        for (int i = 0; i < 5; i++) {
+            QuestionResponseDTO dto = result.getContent().get(i);
+            assertEquals(i, dto.getId());
+            assertEquals("Title" + i, dto.getTitle());
+            assertEquals("Content" + i, dto.getContent());
+        }
+
+        // Verify
+        verify(questionRepository, times(1)).findLikedQuestions(pageable);
+        verify(questionLikeRepository, times(5)).countByQuestion(any(Question.class));
+        verify(questionRepository, times(5)).countAnswersByQuestion(any(Question.class));
+        verify(questionMapper, times(5)).convertToDTO(any(Question.class), anyLong(), anyLong());
+
+    }
+
+    @Test
+    public void testGetFilteredList_answers(){
+        // Arrange
+        List<String> types = new ArrayList<>();
+        List<Question> questions = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Question question = new Question();
+            question.setId((long) i);
+            question.setTitle("Title" + i);
+            question.setContent("Content" + i);
+            question.setType("type 1");
+            question.setPublicationDate(LocalDate.now());
+            questions.add(question);
+        }
+
+        Pageable pageable = Pageable.ofSize(5).withPage(0);
+        Page<Question> page = new PageImpl<>(questions, pageable, questions.size());
+
+        when(questionRepository.findAnsweredQuestions(pageable)).thenReturn(page);
+        when(questionLikeRepository.countByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionRepository.countAnswersByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionMapper.convertToDTO(any(Question.class), anyLong(), anyLong())).thenAnswer(invocation -> {
+            Question question = invocation.getArgument(0);
+            Long likes = 0L;
+            Long answers = 0L;
+            return new QuestionResponseDTO(question.getId(), question.getTitle(), question.getContent(), question.getPublicationDate().toString(), question.getType(), question.getId(), likes, answers);
+        });
+
+        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
+        filterRequestDTO.setOrderBy("answers");
+        filterRequestDTO.setPageSize(5);
+        filterRequestDTO.setPageNum(0);
+        filterRequestDTO.setCategories(types);
+
+        // Act
+        Page<QuestionResponseDTO> result = questionService.getFilteredList(filterRequestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(5, result.getContent().size());
+        for (int i = 0; i < 5; i++) {
+            QuestionResponseDTO dto = result.getContent().get(i);
+            assertEquals(i, dto.getId());
+            assertEquals("Title" + i, dto.getTitle());
+            assertEquals("Content" + i, dto.getContent());
+        }
+
+        // Verify
+        verify(questionRepository, times(1)).findAnsweredQuestions(pageable);
+        verify(questionLikeRepository, times(5)).countByQuestion(any(Question.class));
+        verify(questionRepository, times(5)).countAnswersByQuestion(any(Question.class));
+        verify(questionMapper, times(5)).convertToDTO(any(Question.class), anyLong(), anyLong());
+    }
+
+    @Test
+    public void testGetFilteredList_recent(){
+        // Arrange
+        List<String> types = new ArrayList<>();
+        List<Question> questions = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Question question = new Question();
+            question.setId((long) i);
+            question.setTitle("Title" + i);
+            question.setContent("Content" + i);
+            question.setType("type 1");
+            question.setPublicationDate(LocalDate.now());
+            questions.add(question);
+        }
+
+        Pageable pageable = Pageable.ofSize(5).withPage(0);
+        Page<Question> page = new PageImpl<>(questions, pageable, questions.size());
+
+        when(questionRepository.findRecentQuestions(pageable)).thenReturn(page);
+        when(questionLikeRepository.countByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionRepository.countAnswersByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionMapper.convertToDTO(any(Question.class), anyLong(), anyLong())).thenAnswer(invocation -> {
+            Question question = invocation.getArgument(0);
+            Long likes = 0L;
+            Long answers = 0L;
+            return new QuestionResponseDTO(question.getId(), question.getTitle(), question.getContent(), question.getPublicationDate().toString(), question.getType(), question.getId(), likes, answers);
+        });
+
+        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
+        filterRequestDTO.setPageSize(5);
+        filterRequestDTO.setPageNum(0);
+        filterRequestDTO.setCategories(types);
+
+        // Act
+        Page<QuestionResponseDTO> result = questionService.getFilteredList(filterRequestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(5, result.getContent().size());
+        List<QuestionResponseDTO> content = result.getContent();
+        for (int i = 0; i < 5; i++) {
+            QuestionResponseDTO dto = content.get(i);
+            assertEquals(i, dto.getId());
+            assertEquals("Title" + i, dto.getTitle());
+            assertEquals("Content" + i, dto.getContent());
+        }
+    }
+
+    @Test
+    public void testGetFilteredList_likesTyped(){
+        // Arrange
+        List<String> types = new ArrayList<>();
+        types.add("type 1");
+        List<Question> questions = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Question question = new Question();
+            question.setId((long) i);
+            question.setTitle("Title" + i);
+            question.setContent("Content" + i);
+            question.setType("type 1");
+            question.setPublicationDate(LocalDate.now());
+            questions.add(question);
+        }
+
+        Pageable pageable = Pageable.ofSize(5).withPage(0);
+        Page<Question> page = new PageImpl<>(questions, pageable, questions.size());
+
+        when(questionRepository.findLikedQuestionByType(types, pageable)).thenReturn(page);
+        when(questionLikeRepository.countByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionRepository.countAnswersByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionMapper.convertToDTO(any(Question.class), anyLong(), anyLong())).thenAnswer(invocation -> {
+            Question question = invocation.getArgument(0);
+            Long likes = 0L;
+            Long answers = 0L;
+            return new QuestionResponseDTO(question.getId(), question.getTitle(), question.getContent(), question.getPublicationDate().toString(), question.getType(), question.getId(), likes, answers);
+        });
+
+        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
+        filterRequestDTO.setPageSize(5);
+        filterRequestDTO.setPageNum(0);
+        filterRequestDTO.setCategories(types);
+        filterRequestDTO.setOrderBy("likes");
+
+        // Act
+        Page<QuestionResponseDTO> result = questionService.getFilteredList(filterRequestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(5, result.getContent().size());
+        List<QuestionResponseDTO> content = result.getContent();
+        for (int i = 0; i < 5; i++) {
+            QuestionResponseDTO dto = content.get(i);
+            assertEquals(i, dto.getId());
+            assertEquals("Title" + i, dto.getTitle());
+            assertEquals("Content" + i, dto.getContent());
+        }
+    }
+
+    @Test
+    public void testGetFilteredList_answersTyped(){
+        // Arrange
+        List<String> types = new ArrayList<>();
+        types.add("type 1");
+        List<Question> questions = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Question question = new Question();
+            question.setId((long) i);
+            question.setTitle("Title" + i);
+            question.setContent("Content" + i);
+            question.setType("type 1");
+            question.setPublicationDate(LocalDate.now());
+            questions.add(question);
+        }
+
+        Pageable pageable = Pageable.ofSize(5).withPage(0);
+        Page<Question> page = new PageImpl<>(questions, pageable, questions.size());
+
+        when(questionRepository.findAnsweredQuestionByType(types, pageable)).thenReturn(page);
+        when(questionLikeRepository.countByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionRepository.countAnswersByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionMapper.convertToDTO(any(Question.class), anyLong(), anyLong())).thenAnswer(invocation -> {
+            Question question = invocation.getArgument(0);
+            Long likes = 0L;
+            Long answers = 0L;
+            return new QuestionResponseDTO(question.getId(), question.getTitle(), question.getContent(), question.getPublicationDate().toString(), question.getType(), question.getId(), likes, answers);
+        });
+
+        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
+        filterRequestDTO.setPageSize(5);
+        filterRequestDTO.setPageNum(0);
+        filterRequestDTO.setCategories(types);
+        filterRequestDTO.setOrderBy("answers");
+
+        // Act
+        Page<QuestionResponseDTO> result = questionService.getFilteredList(filterRequestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(5, result.getContent().size());
+        List<QuestionResponseDTO> content = result.getContent();
+        for (int i = 0; i < 5; i++) {
+            QuestionResponseDTO dto = content.get(i);
+            assertEquals(i, dto.getId());
+            assertEquals("Title" + i, dto.getTitle());
+            assertEquals("Content" + i, dto.getContent());
+        }
+    }
+
+    @Test
+    public void testGetFilteredList_recentTyped(){
+        // Arrange
+        List<String> types = new ArrayList<>();
+        types.add("type 1");
+        List<Question> questions = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Question question = new Question();
+            question.setId((long) i);
+            question.setTitle("Title" + i);
+            question.setContent("Content" + i);
+            question.setType("type 1");
+            question.setPublicationDate(LocalDate.now());
+            questions.add(question);
+        }
+
+        Pageable pageable = Pageable.ofSize(5).withPage(0);
+        Page<Question> page = new PageImpl<>(questions, pageable, questions.size());
+
+        when(questionRepository.findRecentQuestionByType(types, pageable)).thenReturn(page);
+        when(questionLikeRepository.countByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionRepository.countAnswersByQuestion(any(Question.class))).thenReturn(0L);
+        when(questionMapper.convertToDTO(any(Question.class), anyLong(), anyLong())).thenAnswer(invocation -> {
+            Question question = invocation.getArgument(0);
+            Long likes = 0L;
+            Long answers = 0L;
+            return new QuestionResponseDTO(question.getId(), question.getTitle(), question.getContent(), question.getPublicationDate().toString(), question.getType(), question.getId(), likes, answers);
+        });
+
+        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
+        filterRequestDTO.setPageSize(5);
+        filterRequestDTO.setPageNum(0);
+        filterRequestDTO.setCategories(types);
+
+        // Act
+        Page<QuestionResponseDTO> result = questionService.getFilteredList(filterRequestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(5, result.getContent().size());
+        List<QuestionResponseDTO> content = result.getContent();
+        for (int i = 0; i < 5; i++) {
+            QuestionResponseDTO dto = content.get(i);
+            assertEquals(i, dto.getId());
+            assertEquals("Title" + i, dto.getTitle());
+            assertEquals("Content" + i, dto.getContent());
+        }
     }
 }

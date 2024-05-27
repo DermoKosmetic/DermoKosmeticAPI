@@ -34,10 +34,15 @@ public class QuestionService {
     private final QuestionMapper questionMapper;
     private final QuestionLikeRepository questionLikeRepository;
     private final UserService userService;
-    private final ArticleRepository articleRepository;
-    private final ArticleMapper articleMapper;
     private final UserRepository userRepository;
     private final QuestionLikeMapper questionLikeMapper;
+
+
+    private QuestionResponseDTO getDTO(Question question){
+        Long likes = questionLikeRepository.countByQuestion(question);
+        Long answers = questionRepository.countAnswersByQuestion(question);
+        return questionMapper.convertToDTO(question, likes, answers);
+    }
 
 
     //create question
@@ -51,38 +56,21 @@ public class QuestionService {
         return questionMapper.convertToDTO(newQuestion, 0L, 0L);
     }
 
-
-    private List<QuestionResponseDTO> getQuestionListDTO(List<Question> questions) {
-        return questions.stream()
-                .map(question -> {
-                    Long likes = questionRepository.findQuestionLikesById(question.getId());
-                    Long answers = questionRepository.findQuestionAnswersById(question.getId());
-                    System.out.println(likes +  answers);
-                    return questionMapper.convertToDTO(question, likes, answers);
-                })
-                .collect(Collectors.toList());
-    }
-
     //get all articles
     public List<QuestionResponseDTO> getAllQuestions() {
-        List<Question> questions = questionRepository.findAll();
-        return getQuestionListDTO(questions);
+        return questionRepository.findAll().stream().map(this::getDTO).toList();
     }
 
     public QuestionResponseDTO getQuestionById(Long id) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Question with id: " + id + " not found"));
-        Long likes = questionRepository.findQuestionLikesById(id);
-        Long answers = questionRepository.findQuestionAnswersById(id);
-        return questionMapper.convertToDTO(question, likes, answers);
+        return getDTO(question);
     }
 
     public QuestionResponseDTO getQuestionByTitle(String title) {
         Question question = questionRepository.findByTitle(title)
                 .orElseThrow(() -> new ResourceNotFoundException("Question with title: " + title + " not found"));
-        Long likes = questionRepository.findQuestionLikesById(question.getId());
-        Long answers = questionRepository.findQuestionAnswersById(question.getId());
-        return questionMapper.convertToDTO(question, likes, answers);
+        return getDTO(question);
     }
 
     // delete by id
@@ -130,11 +118,6 @@ public class QuestionService {
 
     //filters
 
-    private QuestionResponseDTO getDTO(Question question){
-        Long likes = questionLikeRepository.countByQuestion(question);
-        Long answers = questionRepository.countAnswersByQuestion(question);
-        return questionMapper.convertToDTO(question, likes, answers);
-    }
 
 
     public Page<QuestionResponseDTO> getFilteredList(FilterRequestDTO filterRequestDTO){
