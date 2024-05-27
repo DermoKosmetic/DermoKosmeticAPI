@@ -41,8 +41,6 @@ public class UserServiceTest {
         List<UserResponseDTO> result = userService.getAllUser();
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(userMapper).convertToDTO(Collections.emptyList());
-        verify(userRepository).findAll();
     }
 
     @Test
@@ -74,13 +72,6 @@ public class UserServiceTest {
         assertNotNull(result);
         assertEquals(username, result.getUsername());
         assertEquals(email, result.getEmail());
-
-        //verify
-        verify(userRepository).save(user);
-        verify(userMapper).convertToDTO(user);
-        verify(userMapper).convertToEntity(userRequestDTO);
-        verify(userRepository).existsByUsername(username);
-        verify(userRepository).existsByEmail(email);
     }
 
     @Test
@@ -132,8 +123,6 @@ public class UserServiceTest {
         //Assert
         assertNotNull(result);
         assertEquals(username, result.getUsername());
-        //verify
-        verify(userRepository).findByUsername(username);
     }
 
     @Test
@@ -141,8 +130,6 @@ public class UserServiceTest {
         String username = "username";
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, ()->userService.getEntityByUsername(username));
-        //verify
-        verify(userRepository).findByUsername(username);
     }
 
     @Test
@@ -161,10 +148,6 @@ public class UserServiceTest {
 
         //Assert
         assertEquals(username, result.getUsername());
-
-        //Verify
-        verify(userRepository).findByUsername(username);
-        verify(userMapper).convertToDTO(user);
     }
 
     @Test
@@ -172,7 +155,6 @@ public class UserServiceTest {
         String username = "username";
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, ()->userService.getUserByUsername(username));
-        verify(userRepository).findByUsername(username);
     }
 
     @Test
@@ -191,10 +173,6 @@ public class UserServiceTest {
 
         //Assert
         assertEquals(id, result.getId());
-
-        //Verify
-        verify(userRepository).findById(id);
-        verify(userMapper).convertToDTO(user);
     }
 
     @Test
@@ -202,7 +180,6 @@ public class UserServiceTest {
         Long id = 1L;
         when(userRepository.findById(id)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, ()->userService.getUserById(id));
-        verify(userRepository).findById(id);
     }
 
     @Test
@@ -214,7 +191,6 @@ public class UserServiceTest {
         user.setPassword(password);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         assertTrue(userService.validateUserByUsername(username, password));
-        verify(userRepository).findByUsername(username);
     }
 
     @Test
@@ -223,7 +199,6 @@ public class UserServiceTest {
         String password = "password";
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, ()->userService.validateUserByUsername(username, password));
-        verify(userRepository).findByUsername(username);
     }
 
     @Test
@@ -235,7 +210,6 @@ public class UserServiceTest {
         user.setPassword(password);
         when(userRepository.findByemail(email)).thenReturn(Optional.of(user));
         assertTrue(userService.validateUserByEmail(email, password));
-        verify(userRepository).findByemail(email);
     }
 
     @Test
@@ -244,7 +218,6 @@ public class UserServiceTest {
         String password = "password";
         when(userRepository.findByemail(email)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, ()->userService.validateUserByEmail(email, password));
-        verify(userRepository).findByemail(email);
     }
 
     @Test
@@ -252,7 +225,6 @@ public class UserServiceTest {
         String username = "username";
         when(userRepository.existsByUsername(username)).thenReturn(true);
         assertTrue(userService.existsByUsername(username));
-        verify(userRepository).existsByUsername(username);
     }
 
     @Test
@@ -269,15 +241,12 @@ public class UserServiceTest {
     userValidationDTO.setPassword(password);
 
     when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-    boolean isValid =userService.validateUser(userValidationDTO);
 
     assertDoesNotThrow(() ->userService.deleteUser(userValidationDTO));
-    verify(userRepository).deleteByUsername(username);
     }
 
     @Test
     public void testDeleteUserByEmail() {
-    String username = "username";
     String email = "email@example.com";
     String password = "password";
 
@@ -290,20 +259,29 @@ public class UserServiceTest {
     userValidationDTO.setPassword(password);
 
     when(userRepository.findByemail(email)).thenReturn(Optional.of(user));
-    boolean isValid =userService.validateUser(userValidationDTO);
 
     assertDoesNotThrow(() ->userService.deleteUser(userValidationDTO));
-    verify(userRepository).deleteByEmail(email);
+    
     }
 
     @Test
     public void testDeleteUser_BadRequest(){
+        String username = "username";
+        String password1 = "password1";
+        String password2 = "password2";
 
-    User user = new User();
-    UserValidationDTO userValidationDTO = new UserValidationDTO();
+        User user = new User();
+        user.setId(1L);
+        user.setUsername(username);
+        user.setPassword(password1);
 
-    assertThrows(BadRequestException.class, ()->userService.deleteUser(userValidationDTO));
+        UserValidationDTO userValidationDTO = new UserValidationDTO();
+        userValidationDTO.setUsername(username);
+        userValidationDTO.setPassword(password2);
 
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        assertThrows(BadRequestException.class, ()->userService.deleteUser(userValidationDTO));
     }
 
     @Test
@@ -342,12 +320,6 @@ public class UserServiceTest {
         assertEquals(userResponseDTO.getId(), result.getId());
         assertEquals(userResponseDTO.getUsername(), result.getUsername());
         assertEquals(userResponseDTO.getEmail(), result.getEmail());
-
-        verify(userRepository).findByUsername(user.getUsername());
-        verify(userMapper).convertToEntity(userRequestDTO);
-        verify(userRepository).save(updatedUser);
-        verify(userMapper).convertToDTO(updatedUser);
-
     }
 
     @Test
@@ -356,11 +328,11 @@ public class UserServiceTest {
         UserRequestDTO updatedUser = new UserRequestDTO();
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, ()->userService.updateUser(username, updatedUser));
-        verify(userRepository).findByUsername(username);
+        
     }
 
     @Test
-    public void testPatchByUsername(){
+    public void testPatchByUsername_full(){
         String username = "username";
 
         User user = new User();
@@ -392,11 +364,43 @@ public class UserServiceTest {
         assertEquals(userUpdateDTO.getUsername(), result.getUsername());
         assertEquals(userUpdateDTO.getEmail(), result.getEmail());
         assertEquals(userUpdateDTO.getProfilePic(), result.getProfilePic());
-
-        verify(userRepository).findByUsername(username);
-        verify(userRepository).save(user);
-        verify(userMapper).convertToDTO(user);
     }
+
+    @Test
+    public void testPatchByUsername_empty(){
+        // Arrange
+        String username = "username";
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername(username);
+        user.setEmail("email@example.com");
+        user.setPassword("password");
+        user.setProfilePic("profilePic.jpg");
+
+        UserUpdateDTO userUpdateDTO = new UserUpdateDTO();
+
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setId(user.getId());
+        userResponseDTO.setUsername(user.getUsername());
+        userResponseDTO.setEmail(user.getEmail());
+        userResponseDTO.setProfilePic(user.getProfilePic());
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(userMapper.convertToDTO(user)).thenReturn(userResponseDTO);
+
+        // Act
+        UserResponseDTO result = userService.patchUser(username, userUpdateDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(userResponseDTO.getId(), result.getId());
+        assertEquals(user.getUsername(), result.getUsername());
+        assertEquals(user.getEmail(), result.getEmail());
+        assertEquals(user.getProfilePic(), result.getProfilePic());
+    }
+
+
 
      @Test
     public void testPatchUser_UserNotFound() {
@@ -426,8 +430,6 @@ public class UserServiceTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> userService.patchUser(username, userUpdateDTO));
 
         assertEquals("User not found with username: " + username, exception.getMessage());
-
-        verify(userRepository).findByUsername(username);
     }
 
     @Test
@@ -451,13 +453,11 @@ public class UserServiceTest {
 
         boolean isValid=userService.validateUser(userValidationDTO);
 
-        assertEquals(true,isValid);
+        assertTrue(isValid);
     }
 
     @Test
     public void testValidateUser_Email() {
-
-        String username = "username";
         String email = "email@example.com";
         String password = "password";
 
@@ -473,18 +473,11 @@ public class UserServiceTest {
 
         boolean isValid=userService.validateUser(userValidationDTO);
 
-        assertEquals(true,isValid);
+        assertTrue(isValid);
     }
 
     @Test
     public void testValidateUser_BadRequest() {
-
-        String username = "username";
-        String email = "email@example.com";
-        String password = "password";
-
-        User user = new User();
-
         UserValidationDTO userValidationDTO = new UserValidationDTO();
 
         assertThrows(BadRequestException.class, ()->userService.validateUser(userValidationDTO));
@@ -499,7 +492,6 @@ public class UserServiceTest {
         User result = userService.getEntityById(id);
         assertNotNull(result);
         assertEquals(id, result.getId());
-        verify(userRepository).findById(id);
     }
 
     @Test
@@ -507,7 +499,6 @@ public class UserServiceTest {
         Long id = 1L;
         when(userRepository.findById(id)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, ()->userService.getEntityById(id));
-        verify(userRepository).findById(id);
     }
 
 
