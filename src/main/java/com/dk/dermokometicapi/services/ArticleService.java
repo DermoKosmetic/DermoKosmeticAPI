@@ -119,7 +119,7 @@ public class ArticleService {
 
     public ArticleResponseDTO getFullArticleByTitle(String title) {
         Article article = articleRepository.findByTitle(title)
-                .orElseThrow(() -> new ResolutionException("Article not found with title: " + title));
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with title: " + title));
         return getFullDTO(article);
     }
 
