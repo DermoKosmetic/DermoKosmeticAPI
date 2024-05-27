@@ -1,5 +1,6 @@
 package com.dk.dermokometicapi.repositories;
 
+import com.dk.dermokometicapi.models.entities.Article;
 import com.dk.dermokometicapi.models.entities.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // Find comments by parent comment id ordered by response number
     @Query(value = "SELECT c.* FROM comments c LEFT JOIN comments c2 ON c.id = c2.parent_id WHERE c.parent_id = :parent_comment_id GROUP BY c.id ORDER BY COUNT(c2.id) DESC", nativeQuery = true)
     Page<Comment> findCommentedCommentsByParentComment_id(Long parent_comment_id, Pageable pageable);
+
+    Long countByArticle(Article article);
 
     /*
     *     @Query("SELECT a FROM Article a ORDER BY a.publicationDate DESC")

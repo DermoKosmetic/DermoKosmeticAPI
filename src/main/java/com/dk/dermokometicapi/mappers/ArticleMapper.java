@@ -24,7 +24,7 @@ public class ArticleMapper {
         return article;
     }
 
-    public ArticleDetail convertToDetailEntity(ArticleRequestDTO articleRequestDTO, Article article) {
+    public ArticleDetail convertToDetailEntity(ArticleRequestDTO articleRequestDTO) {
         return modelMapper.map(articleRequestDTO, ArticleDetail.class);
     }
 
