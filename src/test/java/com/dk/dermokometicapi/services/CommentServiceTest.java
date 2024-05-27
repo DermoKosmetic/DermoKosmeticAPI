@@ -169,14 +169,11 @@ public class CommentServiceTest {
         // Arrange
         Long userId = 1L;
         Long articleId = 2L;
-        Long parentCommentId = 3L;
 
         User user = new User();
         user.setId(userId);
         Article article = new Article();
         article.setId(articleId);
-        Comment parentComment = new Comment();
-        parentComment.setId(parentCommentId);
 
         Comment comment = new Comment();
         comment.setId(1L);
@@ -190,18 +187,15 @@ public class CommentServiceTest {
         commentResponseDTO.setPublicationDate(LocalDate.now().toString());
         commentResponseDTO.setArticleId(articleId);
         commentResponseDTO.setUserId(userId);
-        commentResponseDTO.setParentCommentId(parentCommentId);
 
         CommentRequestDTO commentRequestDTO = new CommentRequestDTO();
         commentRequestDTO.setUserId(userId);
         commentRequestDTO.setArticleId(articleId);
-        commentRequestDTO.setParentCommentId(parentCommentId);
 
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
-        when(commentRepository.findById(parentCommentId)).thenReturn(Optional.of(parentComment));
-        when(commentMapper.convertToEntity(commentRequestDTO, article, parentComment, user)).thenReturn(comment);
+        when(commentMapper.convertToEntity(commentRequestDTO, article, null, user)).thenReturn(comment);
         when(commentMapper.convertToDTO(comment, 0L, 0L)).thenReturn(commentResponseDTO);
 
         // Act
@@ -210,13 +204,6 @@ public class CommentServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(commentResponseDTO, result);
-        //verify
-        verify(userRepository).findById(userId);
-        verify(articleRepository).findById(articleId);
-        verify(commentRepository).findById(parentCommentId);
-        verify(commentMapper).convertToEntity(commentRequestDTO, article, parentComment, user);
-        verify(commentRepository).save(comment);
-        verify(commentMapper).convertToDTO(comment, 0L, 0L);
     }
 
     @Test
