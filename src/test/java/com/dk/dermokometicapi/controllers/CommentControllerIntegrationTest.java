@@ -341,17 +341,15 @@ public class CommentControllerIntegrationTest {
         CommentLike commentLike = createTestCommentLike();
         commentLike.setComment(comment);
         commentLike.setUser(user);
+        commentLike.setPublicationDate(LocalDate.now());
         entityManager.persist(commentLike);
         entityManager.flush();
 
-        CommentLikeRequestDTO commentLikeRequestDTO = createTestCommentLikeRequestDTO();
-        commentLikeRequestDTO.setCommentId(comment.getId());
-        commentLikeRequestDTO.setUserId(user.getId());
+        Long likeId = commentLike.getId();
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/comments/like")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(commentLikeRequestDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/comments/like/{id}", likeId))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Comment unliked successfully"));
     }
 
     @Test
