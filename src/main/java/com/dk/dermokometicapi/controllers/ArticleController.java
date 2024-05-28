@@ -4,6 +4,7 @@ import com.dk.dermokometicapi.models.dto.*;
 import com.dk.dermokometicapi.services.ArticleService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,44 +18,44 @@ public class ArticleController {
 
     @GetMapping
     public ResponseEntity<List<ArticleSummaryResponseDTO>> getAllArticles() {
-        return ResponseEntity.ok(articleService.getAllArticles());
+        return new ResponseEntity<>(articleService.getAllArticles(), HttpStatus.OK);
     }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<ArticleResponseDTO> getFullArticleById(@PathVariable Long id) {
-        return ResponseEntity.ok(articleService.getFullArticleById(id));
+        return new ResponseEntity<>(articleService.getFullArticleById(id), HttpStatus.OK);
     }
 
     @GetMapping("/title/{title}")
     public ResponseEntity<ArticleResponseDTO> getFullArticleByTitle(@PathVariable String title) {
-        return ResponseEntity.ok(articleService.getFullArticleByTitle(title));
+        return new ResponseEntity<>(articleService.getFullArticleByTitle(title), HttpStatus.OK);
     }
 
     @GetMapping("/filter")
     public ResponseEntity<Page<ArticleSummaryResponseDTO>> searchArticles(@RequestBody FilterRequestDTO filterRequestDTO) {
-        return ResponseEntity.ok(articleService.getFilteredList(filterRequestDTO));
+        return new ResponseEntity<>(articleService.getFilteredList(filterRequestDTO), HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<ArticleResponseDTO> createArticle(@RequestBody ArticleRequestDTO articleRequestDTO) {
-        return ResponseEntity.ok(articleService.createArticle(articleRequestDTO));
+        return new ResponseEntity<>(articleService.createArticle(articleRequestDTO), HttpStatus.CREATED);
     }
 
     @PostMapping("/like")
     public ResponseEntity<ArticleLikeResponseDTO> likeArticle(@RequestBody ArticleLikeRequestDTO articleLikeRequestDTO) {
-        return ResponseEntity.ok(articleService.createLike(articleLikeRequestDTO));
+        return new ResponseEntity<>(articleService.createLike(articleLikeRequestDTO), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity<Void> deleteArticleById(@PathVariable Long id) {
         articleService.deleteById(id);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/like")
     public ResponseEntity<Void> deleteLike(@RequestBody ArticleLikeRequestDTO articleLikeRequestDTO) {
         articleService.deleteLike(articleLikeRequestDTO);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
