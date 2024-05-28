@@ -50,6 +50,9 @@ public class ArticleServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
+    @Mock
+    private CommentLikeRepository commentLikeRepository;
+
     @InjectMocks
     private ArticleService articleService;
 
