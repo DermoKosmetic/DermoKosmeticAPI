@@ -45,6 +45,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Long countByArticle(Article article);
 
+    void deleteByArticle(Article article);
+
     /*
     *     @Query("SELECT a FROM Article a ORDER BY a.publicationDate DESC")
     Page<Article> findRecentArticles(Pageable pageable);

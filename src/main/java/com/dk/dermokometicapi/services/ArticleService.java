@@ -6,10 +6,7 @@ import com.dk.dermokometicapi.models.dto.*;
 import com.dk.dermokometicapi.models.entities.*;
 import com.dk.dermokometicapi.mappers.ArticleLikeMapper;
 import com.dk.dermokometicapi.mappers.ArticleMapper;
-import com.dk.dermokometicapi.repositories.ArticleDetailRepository;
-import com.dk.dermokometicapi.repositories.ArticleLikeRepository;
-import com.dk.dermokometicapi.repositories.ArticleRepository;
-import com.dk.dermokometicapi.repositories.CommentRepository;
+import com.dk.dermokometicapi.repositories.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +29,7 @@ public class ArticleService {
     private final ArticleLikeMapper articleLikeMapper;
     private final ArticleDetailRepository articleDetailRepository;
     private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     // functions
 
@@ -59,6 +57,10 @@ public class ArticleService {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
         ArticleDetail articleDetail = article.getArticleDetail();
+
+        commentLikeRepository.deleteByComment_Article(article);
+        commentRepository.deleteByArticle(article);
+        articleLikeRepository.deleteByArticle(article);
         articleRepository.deleteById(id);
         articleDetailRepository.delete(articleDetail);
     }
@@ -68,6 +70,10 @@ public class ArticleService {
         Article article = articleRepository.findByTitle(title)
                 .orElseThrow(() -> new ResourceNotFoundException("Article not found with title: " + title));
         ArticleDetail articleDetail = article.getArticleDetail();
+
+        commentLikeRepository.deleteByComment_Article(article);
+        commentRepository.deleteByArticle(article);
+        articleLikeRepository.deleteByArticle(article);
         articleRepository.deleteByTitle(title);
         articleDetailRepository.delete(articleDetail);
     }

@@ -1,5 +1,6 @@
 package com.dk.dermokometicapi.repositories;
 
+import com.dk.dermokometicapi.models.entities.Article;
 import com.dk.dermokometicapi.models.entities.Comment;
 import com.dk.dermokometicapi.models.entities.CommentLike;
 import com.dk.dermokometicapi.models.entities.User;
@@ -13,4 +14,5 @@ public interface CommentLikeRepository extends JpaRepository<CommentLike,Long> {
     void deleteByCommentAndUser (Comment comment, User user);
     long countByComment(Comment comment);
     Optional<CommentLike> findByComment_IdAndUser_Id(long commentId, long userId);
+    void deleteByComment_Article(Article article);
 }
