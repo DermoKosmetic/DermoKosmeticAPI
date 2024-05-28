@@ -31,7 +31,7 @@ public class AnswerController {
 
     // create answer
     @PostMapping()
-    public ResponseEntity<AnswerResponseDTO> addAnswer(@RequestBody @Valid AnswerRequestDTO answerRequestDTO){
+    public ResponseEntity<AnswerResponseDTO> createAnswer(@RequestBody @Valid AnswerRequestDTO answerRequestDTO){
         return new ResponseEntity<>(answerService.addAnswer(answerRequestDTO), HttpStatus.CREATED);
     }
 
@@ -51,20 +51,20 @@ public class AnswerController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteAnswer(@PathVariable Long id){
         answerService.deleteAnswer(id);
-        return new ResponseEntity<>("Answer deleted successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Answer deleted successfully", HttpStatus.NO_CONTENT);
     }
 
     // like answer
     @PostMapping("/like")
     public ResponseEntity<AnswerLikeResponseDTO> likeAnswer(@RequestBody @Valid AnswerLikeRequestDTO answerLikeRequestDTO){
-        return new ResponseEntity<>(answerService.likeAnswer(answerLikeRequestDTO), HttpStatus.OK);
+        return new ResponseEntity<>(answerService.likeAnswer(answerLikeRequestDTO), HttpStatus.CREATED);
     }
 
     // unlike answer
     @DeleteMapping("/like")
     public ResponseEntity<String> unlikeAnswer(@RequestBody @Valid AnswerLikeRequestDTO answerLikeRequestDTO){
         answerService.unlikeAnswer(answerLikeRequestDTO);
-        return new ResponseEntity<>("Like deleted successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Like deleted successfully", HttpStatus.NO_CONTENT);
     }
 
 }
