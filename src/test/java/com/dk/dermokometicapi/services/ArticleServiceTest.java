@@ -737,16 +737,12 @@ public class ArticleServiceTest {
         User user = new User();
         user.setId(1L);
 
-        ArticleLikeRequestDTO requestDTO = new ArticleLikeRequestDTO();
-        requestDTO.setArticleId(1L);
-        requestDTO.setUserId(1L);
-
         when(articleRepository.findById(1L)).thenReturn(Optional.of(article));
         when(userService.getEntityById(1L)).thenReturn(user);
         when(articleLikeRepository.existsByArticleAndUser(article, user)).thenReturn(true);
 
         // Act
-        assertDoesNotThrow(() -> articleService.deleteLike(requestDTO));
+        assertDoesNotThrow(() -> articleService.deleteLike(article.getId(), user.getId()));
     }
 
     @Test
@@ -758,14 +754,10 @@ public class ArticleServiceTest {
         User user = new User();
         user.setId(1L);
 
-        ArticleLikeRequestDTO requestDTO = new ArticleLikeRequestDTO();
-        requestDTO.setArticleId(1L);
-        requestDTO.setUserId(1L);
-
         when(articleRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> articleService.deleteLike(requestDTO));
+        assertThrows(ResourceNotFoundException.class, () -> articleService.deleteLike(article.getId(), user.getId()));
     }
 
     @Test
@@ -777,16 +769,12 @@ public class ArticleServiceTest {
         User user = new User();
         user.setId(1L);
 
-        ArticleLikeRequestDTO requestDTO = new ArticleLikeRequestDTO();
-        requestDTO.setArticleId(1L);
-        requestDTO.setUserId(1L);
-
         when(articleRepository.findById(1L)).thenReturn(Optional.of(article));
         when(userService.getEntityById(1L)).thenReturn(user);
         when(articleLikeRepository.existsByArticleAndUser(article, user)).thenReturn(false);
 
         // Act and Assert
-        assertThrows(BadRequestException.class, () -> articleService.deleteLike(requestDTO));
+        assertThrows(BadRequestException.class, () -> articleService.deleteLike(article.getId(), user.getId()));
     }
 
     @Test

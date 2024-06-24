@@ -173,10 +173,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public void deleteLike(ArticleLikeRequestDTO articleLikeRequestDTO) {
-        Long articleId = articleLikeRequestDTO.getArticleId();
-        Long userId = articleLikeRequestDTO.getUserId();
-
+    public void deleteLike(Long articleId, Long userId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + articleId));
 
