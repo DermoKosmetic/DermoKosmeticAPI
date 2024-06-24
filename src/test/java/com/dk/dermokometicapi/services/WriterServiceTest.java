@@ -98,4 +98,32 @@ public class WriterServiceTest {
         // Act & Assert
         assertThrows(RuntimeException.class, () -> writerService.getById(1L));
     }
+
+    @Test
+    public void testGetByIds(){
+        // Arrange
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+        Writer writer1 = new Writer(); writer1.setId(1L);
+        Writer writer2 = new Writer(); writer2.setId(2L);
+        Writer writer3 = new Writer(); writer3.setId(3L);
+        List<Writer> writers = Arrays.asList(writer1, writer2, writer3);
+        when(writerRepository.FindByIdList(ids)).thenReturn(writers);
+
+        WriterResponseDTO writerResponseDTO1 = new WriterResponseDTO(); writerResponseDTO1.setId(1L);
+        WriterResponseDTO writerResponseDTO2 = new WriterResponseDTO(); writerResponseDTO2.setId(2L);
+        WriterResponseDTO writerResponseDTO3 = new WriterResponseDTO(); writerResponseDTO3.setId(3L);
+        when(writerMapper.convertToDTO(writer1)).thenReturn(writerResponseDTO1);
+        when(writerMapper.convertToDTO(writer2)).thenReturn(writerResponseDTO2);
+        when(writerMapper.convertToDTO(writer3)).thenReturn(writerResponseDTO3);
+
+        // Act
+        List<WriterResponseDTO> result = writerService.getByIds(ids);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        assertEquals(1L, result.get(0).getId());
+        assertEquals(2L, result.get(1).getId());
+        assertEquals(3L, result.get(2).getId());
+    }
 }

@@ -47,4 +47,20 @@ public class WriterControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/writers/id/{id}", writerId))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    public void testGetWritersByIds() throws Exception {
+        Writer writer1 = createTestWriter();
+        entityManager.persist(writer1);
+        entityManager.flush();
+
+        Writer writer2 = createTestWriter();
+        entityManager.persist(writer2);
+        entityManager.flush();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/writers/id")
+                .contentType("application/json")
+                .content("[1, 2]"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }

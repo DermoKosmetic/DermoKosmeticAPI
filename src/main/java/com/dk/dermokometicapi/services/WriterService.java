@@ -29,4 +29,8 @@ public class WriterService {
                 .orElseThrow(() -> new RuntimeException("Writer not found"));
         return writerMapper.convertToDTO(writer);
     }
+
+    public List<WriterResponseDTO> getByIds(List<Long> ids) {
+        return writerRepository.FindByIdList(ids).stream().map(writerMapper::convertToDTO).toList();
+    }
 }
