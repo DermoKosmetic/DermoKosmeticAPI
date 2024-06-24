@@ -142,7 +142,7 @@ public class ArticleControllerIntegrationTest {
         requestDTO.setCategories(Arrays.asList("Type1", "Type2"));
         requestDTO.setOrderBy("likes");
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/articles/filter")
+        mockMvc.perform(MockMvcRequestBuilders.post("/articles/filter")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(requestDTO)))
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -209,13 +209,9 @@ public class ArticleControllerIntegrationTest {
 
         entityManager.flush();
 
-        ArticleLikeRequestDTO likeRequestDTO = new ArticleLikeRequestDTO();
-        likeRequestDTO.setArticleId(articleId);
-        likeRequestDTO.setUserId(userId);
-
         mockMvc.perform(MockMvcRequestBuilders.delete("/articles/like")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(likeRequestDTO)))
+                        .param("articleId", String.valueOf(articleId))
+                        .param("userId", String.valueOf(userId)))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
