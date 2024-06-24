@@ -31,7 +31,7 @@ public class ArticleController {
         return new ResponseEntity<>(articleService.getFullArticleByTitle(title), HttpStatus.OK);
     }
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     public ResponseEntity<Page<ArticleSummaryResponseDTO>> searchArticles(@RequestBody FilterRequestDTO filterRequestDTO) {
         return new ResponseEntity<>(articleService.getFilteredList(filterRequestDTO), HttpStatus.OK);
     }
@@ -53,8 +53,8 @@ public class ArticleController {
     }
 
     @DeleteMapping("/like")
-    public ResponseEntity<Void> deleteLike(@RequestBody ArticleLikeRequestDTO articleLikeRequestDTO) {
-        articleService.deleteLike(articleLikeRequestDTO);
+    public ResponseEntity<Void> deleteLike(@RequestParam Long articleId, @RequestParam Long userId) {
+        articleService.deleteLike(articleId, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
