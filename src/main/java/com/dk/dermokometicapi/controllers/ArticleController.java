@@ -58,5 +58,9 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/types")
+    public ResponseEntity<List<String>> getDistinctTypes() {
+        return new ResponseEntity<>(articleService.getTypes(), HttpStatus.OK);
+    }
 
 }

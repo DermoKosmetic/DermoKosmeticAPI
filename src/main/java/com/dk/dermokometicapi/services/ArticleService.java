@@ -94,25 +94,15 @@ public class ArticleService {
         if(filterRequestDTO.getOrderBy() == null) filterRequestDTO.setOrderBy("recent");
         Pageable pageable = Pageable.ofSize(filterRequestDTO.getPageSize()).withPage(filterRequestDTO.getPageNum());
         List<String> types = filterRequestDTO.getCategories();
-        if(types.isEmpty()){
-            return switch (filterRequestDTO.getOrderBy()) {
-                case "likes" ->
-                        articleRepository.findLikedArticles(pageable).map(this::getSummaryDTO);
-                case "comments" ->
-                        articleRepository.findCommentedArticles(pageable).map(this::getSummaryDTO);
-                default ->
-                        articleRepository.findRecentArticles(pageable).map(this::getSummaryDTO);
-            };
-        }else{
-            return switch (filterRequestDTO.getOrderBy()) {
-                case "likes" ->
-                        articleRepository.findLikedArticleByType(types, pageable).map(this::getSummaryDTO);
-                case "comments" ->
-                        articleRepository.findCommentedArticleByType(types, pageable).map(this::getSummaryDTO);
-                default ->
-                        articleRepository.findRecentArticleByType(types, pageable).map(this::getSummaryDTO);
-            };
-        }
+        if(types.isEmpty()) types = articleRepository.findDistinctTypes();
+        return switch (filterRequestDTO.getOrderBy()) {
+            case "likes" ->
+                    articleRepository.findLikedArticleByType(types, pageable).map(this::getSummaryDTO);
+            case "comments" ->
+                    articleRepository.findCommentedArticleByType(types, pageable).map(this::getSummaryDTO);
+            default ->
+                    articleRepository.findRecentArticleByType(types, pageable).map(this::getSummaryDTO);
+        };
     }
 
     // get full article
@@ -208,5 +198,10 @@ public class ArticleService {
         articleDetailRepository.save(articleDetail);
 
         return getFullDTO(article);
+    }
+
+    // get Types
+    public List<String> getTypes() {
+        return articleRepository.findDistinctTypes();
     }
 }

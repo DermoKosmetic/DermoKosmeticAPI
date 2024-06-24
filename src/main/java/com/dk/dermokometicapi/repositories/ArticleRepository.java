@@ -26,27 +26,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long>{
 
     boolean existsByTitle(String title);
 
-    // Find likes and comments of an article
-
-    @Query(value = "SELECT COUNT(*) FROM articles a LEFT JOIN article_likes al ON a.id = al.article_id WHERE al.article_id = :articleId", nativeQuery = true)
-    Long findArticleLikesById(@Param("articleId") Long id);
-
-    @Query(value = "SELECT COUNT(*) FROM articles a LEFT JOIN comments c ON a.id = c.article_id WHERE c.article_id = :articleId", nativeQuery = true)
-    Long findArticleCommentsById(@Param("articleId") Long id);
-
     // Filtering and ordering articles
-
-    @Query("SELECT a FROM Article a ORDER BY a.publicationDate DESC")
-    Page<Article> findRecentArticles(Pageable pageable);
-
-    @Query(value = "SELECT a.* FROM articles a LEFT JOIN article_likes al ON a.id = al.article_id GROUP BY a.id ORDER BY COUNT(al.id) DESC", nativeQuery = true)
-    Page<Article> findLikedArticles(Pageable pageable);
-
-    @Query(value = "SELECT a.* FROM articles a LEFT JOIN comments c ON a.id = c.article_id GROUP BY a.id ORDER BY COUNT(c.id) DESC", nativeQuery = true)
-    Page<Article> findCommentedArticles(Pageable pageable);
-
-    @Query("SELECT a FROM Article a WHERE a.type IN :types")
-    Page<Article> findByType(@Param("types") List<String> types, Pageable pageable);
 
     @Query("SELECT a FROM Article a WHERE a.type IN :types ORDER BY a.publicationDate DESC")
     Page<Article> findRecentArticleByType(@Param("types") List<String> types, Pageable pageable);
@@ -57,6 +37,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long>{
     @Query(value = "SELECT a.* FROM articles a LEFT JOIN comments c ON a.id = c.article_id WHERE a.type IN :types GROUP BY a.id ORDER BY COUNT(c.id) DESC", nativeQuery = true)
     Page<Article> findCommentedArticleByType(@Param("types") List<String> types, Pageable pageable);
 
-    @Query("SELECT w.id FROM Article a LEFT JOIN a.writers w WHERE a.id = :articleId")
-    List<Long> findWritersByArticleId(Long articleId);
+    @Query("SELECT DISTINCT a.type FROM Article a")
+    List<String> findDistinctTypes();
 }

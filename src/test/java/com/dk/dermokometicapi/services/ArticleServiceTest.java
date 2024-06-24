@@ -269,149 +269,9 @@ public class ArticleServiceTest {
     }
 
     @Test
-    public void testGetFilteredList_likes() {
-        // Arrange
-        List<String> types = new ArrayList<>();
-        List<Article> articles = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Article article = new Article();
-            article.setId((long) i);
-            article.setTitle("Title" + i);
-            article.setType("type 1");
-            article.setPublicationDate(LocalDate.now());
-            article.setLastUpdateDate(LocalDate.now());
-            articles.add(article);
-        }
-
-        Pageable pageable = Pageable.ofSize(5).withPage(0);
-        Page<Article> page = new PageImpl<>(articles, pageable, articles.size());
-
-        when(articleRepository.findLikedArticles(pageable)).thenReturn(page);
-        when(articleLikeRepository.countByArticle(any(Article.class))).thenReturn(0L);
-        when(commentRepository.countByArticle(any(Article.class))).thenReturn(0L);
-        when(articleMapper.convertToSummaryDTO(any(Article.class), eq(0L), eq(0L))).thenAnswer(invocation -> {
-            Article question = invocation.getArgument(0);
-            Long likes = 0L;
-            Long answers = 0L;
-            return new ArticleSummaryResponseDTO(question.getId(), question.getTitle(), question.getDescription(), question.getType(), question.getMainImg(), question.getPublicationDate().toString(), question.getLastUpdateDate().toString(), likes, answers);
-        });
-
-        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
-        filterRequestDTO.setOrderBy("likes");
-        filterRequestDTO.setPageSize(5);
-        filterRequestDTO.setPageNum(0);
-        filterRequestDTO.setCategories(types);
-
-        // Act
-        Page<ArticleSummaryResponseDTO> result = articleService.getFilteredList(filterRequestDTO);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(5, result.getContent().size());
-        for (int i = 0; i < 5; i++) {
-            ArticleSummaryResponseDTO dto = result.getContent().get(i);
-            assertEquals(i, dto.getId());
-            assertEquals("Title" + i, dto.getTitle());
-        }
-    }
-
-    @Test
-    public void testGetFilteredList_comments() {
-        // Arrange
-        List<String> types = new ArrayList<>();
-        List<Article> articles = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Article article = new Article();
-            article.setId((long) i);
-            article.setTitle("Title" + i);
-            article.setType("type 1");
-            article.setPublicationDate(LocalDate.now());
-            article.setLastUpdateDate(LocalDate.now());
-            articles.add(article);
-        }
-
-        Pageable pageable = Pageable.ofSize(5).withPage(0);
-        Page<Article> page = new PageImpl<>(articles, pageable, articles.size());
-
-        when(articleRepository.findCommentedArticles(pageable)).thenReturn(page);
-        when(articleLikeRepository.countByArticle(any(Article.class))).thenReturn(0L);
-        when(commentRepository.countByArticle(any(Article.class))).thenReturn(0L);
-        when(articleMapper.convertToSummaryDTO(any(Article.class), eq(0L), eq(0L))).thenAnswer(invocation -> {
-            Article question = invocation.getArgument(0);
-            Long likes = 0L;
-            Long answers = 0L;
-            return new ArticleSummaryResponseDTO(question.getId(), question.getTitle(), question.getDescription(), question.getType(), question.getMainImg(), question.getPublicationDate().toString(), question.getLastUpdateDate().toString(), likes, answers);
-        });
-
-        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
-        filterRequestDTO.setOrderBy("comments");
-        filterRequestDTO.setPageSize(5);
-        filterRequestDTO.setPageNum(0);
-        filterRequestDTO.setCategories(types);
-
-        // Act
-        Page<ArticleSummaryResponseDTO> result = articleService.getFilteredList(filterRequestDTO);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(5, result.getContent().size());
-        for (int i = 0; i < 5; i++) {
-            ArticleSummaryResponseDTO dto = result.getContent().get(i);
-            assertEquals(i, dto.getId());
-            assertEquals("Title" + i, dto.getTitle());
-        }
-    }
-
-    @Test
-    public void testGetFilteredList_recent() {
-        // Arrange
-        List<String> types = new ArrayList<>();
-        List<Article> articles = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Article article = new Article();
-            article.setId((long) i);
-            article.setTitle("Title" + i);
-            article.setType("type 1");
-            article.setPublicationDate(LocalDate.now());
-            article.setLastUpdateDate(LocalDate.now());
-            articles.add(article);
-        }
-
-        Pageable pageable = Pageable.ofSize(5).withPage(0);
-        Page<Article> page = new PageImpl<>(articles, pageable, articles.size());
-
-        when(articleRepository.findRecentArticles(pageable)).thenReturn(page);
-        when(articleLikeRepository.countByArticle(any(Article.class))).thenReturn(0L);
-        when(commentRepository.countByArticle(any(Article.class))).thenReturn(0L);
-        when(articleMapper.convertToSummaryDTO(any(Article.class), eq(0L), eq(0L))).thenAnswer(invocation -> {
-            Article question = invocation.getArgument(0);
-            Long likes = 0L;
-            Long answers = 0L;
-            return new ArticleSummaryResponseDTO(question.getId(), question.getTitle(), question.getDescription(), question.getType(), question.getMainImg(), question.getPublicationDate().toString(), question.getLastUpdateDate().toString(), likes, answers);
-        });
-
-        FilterRequestDTO filterRequestDTO = new FilterRequestDTO();
-        filterRequestDTO.setPageSize(5);
-        filterRequestDTO.setPageNum(0);
-        filterRequestDTO.setCategories(types);
-
-        // Act
-        Page<ArticleSummaryResponseDTO> result = articleService.getFilteredList(filterRequestDTO);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(5, result.getContent().size());
-        for (int i = 0; i < 5; i++) {
-            ArticleSummaryResponseDTO dto = result.getContent().get(i);
-            assertEquals(i, dto.getId());
-            assertEquals("Title" + i, dto.getTitle());
-        }
-    }
-
-    @Test
     public void testGetFilteredList_likesTyped() {
         // Arrange
-        List<String> types = List.of("type 1");
+        List<String> types = new ArrayList<>();
         List<Article> articles = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Article article = new Article();
@@ -911,6 +771,20 @@ public class ArticleServiceTest {
 
         // Act & Assert
         assertThrows(ResourceNotFoundException.class, () -> articleService.getFullArticleByTitle(title));
+    }
+
+    @Test
+    public void testGetTypes(){
+        // Arrange
+        List<String> types = Arrays.asList("type1", "type2", "type3");
+        when(articleRepository.findDistinctTypes()).thenReturn(types);
+
+        // Act
+        List<String> result = articleService.getTypes();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(types, result);
     }
 
 }

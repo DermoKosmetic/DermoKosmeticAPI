@@ -231,6 +231,12 @@ public class ArticleControllerIntegrationTest {
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
+    @Test
+    public void testGetTypes() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/articles/types"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
     private String asJsonString(final Object obj) {
         try {
             return new ObjectMapper().writeValueAsString(obj);
