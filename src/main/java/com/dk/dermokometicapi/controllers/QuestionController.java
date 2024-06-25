@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/questions")
 @AllArgsConstructor
@@ -69,9 +69,8 @@ public class QuestionController {
     }
 
     @Transactional
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     public ResponseEntity<Page<QuestionResponseDTO>> searchQuestions(@RequestBody FilterRequestDTO filterRequestDTO) {
         return ResponseEntity.ok(questionService.getFilteredList(filterRequestDTO));
     }
-
 }
