@@ -58,6 +58,11 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/like")
+    public ResponseEntity<Boolean> getLike(@RequestParam Long articleId, @RequestParam Long userId) {
+        return new ResponseEntity<>(articleService.getLike(articleId, userId), HttpStatus.OK);
+    }
+
     @GetMapping("/types")
     public ResponseEntity<List<String>> getDistinctTypes() {
         return new ResponseEntity<>(articleService.getTypes(), HttpStatus.OK);

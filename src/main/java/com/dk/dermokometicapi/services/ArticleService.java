@@ -204,4 +204,12 @@ public class ArticleService {
     public List<String> getTypes() {
         return articleRepository.findDistinctTypes();
     }
+
+    // get like
+    public Boolean getLike(Long articleId, Long userId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + articleId));
+        User user = userService.getEntityById(userId);
+        return articleLikeRepository.existsByArticleAndUser(article, user);
+    }
 }
