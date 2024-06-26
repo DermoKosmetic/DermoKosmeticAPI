@@ -186,7 +186,7 @@ public class QuestionControllerIntegrationTest {
         filterRequestDTO.setPageNum(5);
         filterRequestDTO.setOrderBy("likes");
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/questions/filter")
+        mockMvc.perform(MockMvcRequestBuilders.post("/questions/filter")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(filterRequestDTO)))
                 .andExpect(MockMvcResultMatchers.status().isOk());
