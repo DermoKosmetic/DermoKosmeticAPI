@@ -3,6 +3,7 @@ package com.dk.dermokometicapi.mappers;
 import com.dk.dermokometicapi.models.dto.QuestionRequestDTO;
 import com.dk.dermokometicapi.models.dto.QuestionResponseDTO;
 import com.dk.dermokometicapi.models.entities.Question;
+import com.dk.dermokometicapi.models.entities.User;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,7 +27,9 @@ public class QuestionMapper {
     }
 
     public Question convertToEntity(QuestionRequestDTO questionRequestDTO) {
-        return modelMapper.map(questionRequestDTO, Question.class);
+        Question q = modelMapper.map(questionRequestDTO, Question.class);
+        q.setId(null);
+        return q;
     }
 
     public QuestionResponseDTO convertToDTO(Question question, Long likes, Long answers) {

@@ -50,7 +50,9 @@ public class QuestionService {
         if (questionRepository.existsByTitle(questionRequestDTO.getTitle())) {
             throw new BadRequestException("Question with title: " + questionRequestDTO.getTitle() + " already exists");
         }
+        User user = userService.getEntityById(questionRequestDTO.getUserId());
         Question newQuestion = questionMapper.convertToEntity(questionRequestDTO);
+        newQuestion.setUser(user);
         newQuestion.setPublicationDate(LocalDate.now());
         questionRepository.save(newQuestion);
         return questionMapper.convertToDTO(newQuestion, 0L, 0L);
